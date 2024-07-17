@@ -1,6 +1,6 @@
 package me.mortaldev.examples;
 
-public class PersonManager {
+class PersonManager {
 
   static PersonCRUD personCRUD = new PersonCRUD();
 

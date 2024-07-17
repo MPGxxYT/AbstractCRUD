@@ -2,7 +2,7 @@ package me.mortaldev.examples;
 
 import me.mortaldev.crudapi.AbstractCRUD;
 
-public class Person implements AbstractCRUD.Identifiable {
+class Person implements AbstractCRUD.Identifiable {
   private final String firstName;
   private final String lastName;
   private Integer age;

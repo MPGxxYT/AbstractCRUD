@@ -2,7 +2,7 @@ package me.mortaldev.examples;
 
 import me.mortaldev.crudapi.AbstractCRUD;
 
-public class PersonCRUD extends AbstractCRUD<Person> {
+class PersonCRUD extends AbstractCRUD<Person> {
 
   private static class SingletonHelper {
     private static final PersonCRUD personCRUD = new PersonCRUD();
