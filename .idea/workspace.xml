@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0b7d99d8-3975-4e16-8b8e-1626deb67ccc" name="Changes" comment="I'll consider this the &quot;first commit&quot; since most of the changes are to make the library work on its own.">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_7_17_2024_3_16_PM__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_7_17_2024_3_16_PM__Changes_.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
+    <list default="true" id="0b7d99d8-3975-4e16-8b8e-1626deb67ccc" name="Changes" comment="Moved and updated the name to be more fitting." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -99,6 +94,7 @@
       <workItem from="1721249885094" duration="9000" />
       <workItem from="1721250678175" duration="87000" />
       <workItem from="1721250774914" duration="25000" />
+      <workItem from="1721250888467" duration="49000" />
     </task>
     <task id="LOCAL-00001" summary="Commit 1">
       <option name="closed" value="true" />
@@ -132,7 +128,15 @@
       <option name="project" value="LOCAL" />
       <updated>1721246267086</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Moved and updated the name to be more fitting.">
+      <option name="closed" value="true" />
+      <created>1721250928603</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1721250928603</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -142,6 +146,7 @@
     <MESSAGE value="Commit 1" />
     <MESSAGE value="Commit 2" />
     <MESSAGE value="I'll consider this the &quot;first commit&quot; since most of the changes are to make the library work on its own." />
-    <option name="LAST_COMMIT_MESSAGE" value="I'll consider this the &quot;first commit&quot; since most of the changes are to make the library work on its own." />
+    <MESSAGE value="Moved and updated the name to be more fitting." />
+    <option name="LAST_COMMIT_MESSAGE" value="Moved and updated the name to be more fitting." />
   </component>
 </project>
