@@ -1,9 +1,6 @@
 package me.mortaldev.crud;
 
 import java.io.File;
-import me.mortaldev.jbtutorial.modules.crud.AbstractCRUD;
-import me.mortaldev.jbtutorial.modules.crud.ISave;
-import me.mortaldev.jbtutorial.utils.GSON;
 
 public class GsonSave implements ISave {
   @Override
