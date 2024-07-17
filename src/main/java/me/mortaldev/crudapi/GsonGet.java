@@ -1,4 +1,4 @@
-package me.mortaldev.crud;
+package me.mortaldev.crudapi;
 
 import java.io.File;
 import java.util.Optional;
