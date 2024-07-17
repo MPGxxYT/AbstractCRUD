@@ -3,9 +3,9 @@ package me.mortaldev.crud;
 import java.util.Optional;
 
 public abstract class AbstractCRUD<T extends AbstractCRUD.Identifiable> {
-  protected IDelete iDelete;
-  protected ISave iSave;
-  protected IGet iGet;
+  protected IDelete iDelete = new NormalDelete();
+  protected ISave iSave = new GsonSave();
+  protected IGet iGet = new GsonGet();
 
   public abstract String getPath();
 
