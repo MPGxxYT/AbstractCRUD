@@ -3,11 +3,11 @@ package me.mortaldev.crudapi;
 import java.io.File;
 import java.text.MessageFormat;
 
-public class NormalDelete implements IDelete {
+public class NormalDelete implements Delete {
   private static final String DATA_DELETED = "Data Deleted: {0}";
 
   @Override
-  public <T extends AbstractCRUD.Identifiable> boolean delete(T object, String path) {
+  public <T extends CRUD.Identifiable> boolean delete(T object, String path) {
     File filePath = new File(path + object.getID() + ".json");
     if (filePath.exists()) {
       if (filePath.delete()) {

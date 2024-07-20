@@ -1,8 +1,8 @@
 package me.mortaldev.examples;
 
-import me.mortaldev.crudapi.AbstractCRUD;
+import me.mortaldev.crudapi.CRUD;
 
-class PersonCRUD extends AbstractCRUD<Person> {
+class PersonCRUD extends CRUD<Person> {
 
   private static class SingletonHelper {
     private static final PersonCRUD personCRUD = new PersonCRUD();

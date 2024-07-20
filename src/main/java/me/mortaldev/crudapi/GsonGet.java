@@ -3,7 +3,7 @@ package me.mortaldev.crudapi;
 import java.io.File;
 import java.util.Optional;
 
-public class GsonGet implements IGet {
+public class GsonGet implements Get {
   @Override
   public <T> Optional<T> get(String id, String path, Class<T> clazz) {
     File filePath = new File(path + id + ".json");

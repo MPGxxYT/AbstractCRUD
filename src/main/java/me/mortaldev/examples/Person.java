@@ -1,8 +1,8 @@
 package me.mortaldev.examples;
 
-import me.mortaldev.crudapi.AbstractCRUD;
+import me.mortaldev.crudapi.CRUD;
 
-class Person implements AbstractCRUD.Identifiable {
+class Person implements CRUD.Identifiable {
   private final String firstName;
   private final String lastName;
   private Integer age;

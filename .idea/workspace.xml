@@ -6,9 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="0b7d99d8-3975-4e16-8b8e-1626deb67ccc" name="Changes" comment="Added examples &amp; updated README.md">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/mortaldev/examples/Person.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/mortaldev/examples/Person.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/mortaldev/examples/PersonCRUD.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/mortaldev/examples/PersonCRUD.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/me/mortaldev/examples/PersonManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/me/mortaldev/examples/PersonManager.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,6 +101,10 @@
       <workItem from="1721250888467" duration="49000" />
       <workItem from="1721252693909" duration="434000" />
       <workItem from="1721253305196" duration="33000" />
+      <workItem from="1721347081118" duration="148000" />
+      <workItem from="1721347310743" duration="370000" />
+      <workItem from="1721347692410" duration="9000" />
+      <workItem from="1721459842957" duration="13000" />
     </task>
     <task id="LOCAL-00001" summary="Commit 1">
       <option name="closed" value="true" />
