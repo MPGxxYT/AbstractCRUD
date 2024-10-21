@@ -2,7 +2,9 @@ package me.mortaldev.crudapi;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import java.io.*;
+import java.util.HashMap;
 
 public class GSON {
 
@@ -28,6 +30,21 @@ public class GSON {
         }
     }
 
+    public static <T> T getJsonObject(File file, Class<T> clazz, HashMap<Class<?>, Object> typeAdapterHashMap){
+        GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
+        typeAdapterHashMap.forEach(gsonBuilder::registerTypeAdapter);
+        Gson gson = gsonBuilder.create();
+        if (!file.exists()){
+            return null;
+        }
+
+        try (Reader reader = new FileReader(file)){
+            return gson.fromJson(reader, clazz);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     /**
      * Saves a JSON object to a file in a pretty-printed format.
      *
@@ -36,6 +53,22 @@ public class GSON {
      */
     public static void saveJsonObject(File file, Object object){
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
+        try {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+            try (Writer writer = new FileWriter(file, false)) {
+                gson.toJson(object, writer);
+                writer.flush();
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static void saveJsonObject(File file, Object object, HashMap<Class<?>, Object> typeAdapterHashMap){
+        GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
+        typeAdapterHashMap.forEach(gsonBuilder::registerTypeAdapter);
+        Gson gson = gsonBuilder.create();
         try {
             file.getParentFile().mkdirs();
             file.createNewFile();
