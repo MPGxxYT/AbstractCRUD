@@ -20,6 +20,7 @@ class PersonCRUD extends CRUD<Person> {
   }
 
   public Person getData(String id) {
-    return super.getData(id, Person.class).orElse(new Person("default", "name", 55));
+    return super.getData(id, Person.class)
+        .orElse(new Person("default", "name", 55));
   }
 }

@@ -32,7 +32,9 @@ public class GSON {
 
     public static <T> T getJsonObject(File file, Class<T> clazz, HashMap<Class<?>, Object> typeAdapterHashMap){
         GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
-        typeAdapterHashMap.forEach(gsonBuilder::registerTypeAdapter);
+        if (!typeAdapterHashMap.isEmpty()) {
+            typeAdapterHashMap.forEach(gsonBuilder::registerTypeAdapter);
+        }
         Gson gson = gsonBuilder.create();
         if (!file.exists()){
             return null;
