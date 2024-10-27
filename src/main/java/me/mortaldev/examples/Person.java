@@ -13,14 +13,6 @@ class Person implements CRUD.Identifiable {
     this.age = age;
   }
 
-  public void save() {
-    PersonCRUD.getPersonCRUD().saveData(this);
-  }
-
-  public void delete() {
-    PersonCRUD.getPersonCRUD().deleteData(this);
-  }
-
   public String getFirstName() {
     return firstName;
   }
