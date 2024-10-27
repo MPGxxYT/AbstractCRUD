@@ -5,7 +5,7 @@ class PersonManager {
   static PersonCRUD personCRUD = new PersonCRUD();
 
   static void loadPeople(){
-    Person johnnyRockets = personCRUD.getData("johnny_rockets");
+    Person johnnyRockets = personCRUD.getData("johnny_rockets").orElse(new Person("johnny", "rockets", 55));
     System.out.println(johnnyRockets.getFirstName());
     System.out.println(johnnyRockets.getLastName());
     System.out.println(johnnyRockets.getAge());
