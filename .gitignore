@@ -36,3 +36,16 @@ build/
 
 ### Mac OS ###
 .DS_Store
+/out/production/AbstractCRUD/me/mortaldev/crudapi/CRUD$Identifiable.class
+/out/production/AbstractCRUD/me/mortaldev/crudapi/CRUD.class
+/out/production/AbstractCRUD/me/mortaldev/crudapi/Delete.class
+/out/production/AbstractCRUD/me/mortaldev/crudapi/Get.class
+/out/production/AbstractCRUD/me/mortaldev/crudapi/GSON.class
+/out/production/AbstractCRUD/me/mortaldev/crudapi/GsonGet.class
+/out/production/AbstractCRUD/me/mortaldev/crudapi/GsonSave.class
+/out/production/AbstractCRUD/me/mortaldev/crudapi/NormalDelete.class
+/out/production/AbstractCRUD/me/mortaldev/examples/Person.class
+/out/production/AbstractCRUD/me/mortaldev/examples/PersonCRUD$SingletonHelper.class
+/out/production/AbstractCRUD/me/mortaldev/examples/PersonCRUD.class
+/out/production/AbstractCRUD/me/mortaldev/examples/PersonManager.class
+/out/production/AbstractCRUD/me/mortaldev/crudapi/Save.class
