@@ -1,19 +1,25 @@
 package me.mortaldev.examples;
 
-class PersonManager {
+import me.mortaldev.crudapi.CRUD;
+import me.mortaldev.crudapi.CRUDManager;
 
-  static PersonCRUD personCRUD = new PersonCRUD();
+class PersonManager extends CRUDManager<Person> {
 
-  static void loadPeople(){
-    Person johnnyRockets = personCRUD.getData("johnny_rockets").orElse(new Person("johnny", "rockets", 55));
-    System.out.println(johnnyRockets.getFirstName());
-    System.out.println(johnnyRockets.getLastName());
-    System.out.println(johnnyRockets.getAge());
-    johnnyRockets.setAge(26);
-    personCRUD.saveData(johnnyRockets);
-    personCRUD.deleteData(johnnyRockets);
-    // Or you can use these if you added it to your class.
-    johnnyRockets.save();
-    johnnyRockets.delete();
+  private static final class SingletonHolder {
+    private static final PersonManager INSTANCE = new PersonManager();
+  }
+
+  public static PersonManager getInstance() {
+    return SingletonHolder.INSTANCE;
+  }
+
+  @Override
+  public CRUD<Person> getCRUD() {
+    return PersonCRUD.getPersonCRUD();
+  }
+
+  @Override
+  public void log(String string) {
+    System.out.println(string);
   }
 }
