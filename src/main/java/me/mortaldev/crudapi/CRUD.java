@@ -41,7 +41,7 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
    * @return an {@link Optional} containing the data associated with the given ID,
    * or an empty {@link Optional} if no data with the given ID exists
    */
-  protected Optional<T> getData(String id) {
+  public Optional<T> getData(String id) {
     return get.get(id, getPath(), getClazz(), getTypeAdapterHashMap());
   }
 
