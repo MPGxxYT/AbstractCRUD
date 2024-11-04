@@ -120,11 +120,17 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> {
    *     false otherwise.
    */
   public synchronized boolean add(T data) {
+    return add(data, true);
+  }
+
+  public synchronized boolean add(T data, Boolean saveToFile) {
     if (set.contains(data) || getByID(data.getID()).isPresent()) {
       return false;
     }
     set.add(data);
-    getCRUD().saveData(data);
+    if (saveToFile) {
+      getCRUD().saveData(data);
+    }
     return true;
   }
 
@@ -141,11 +147,17 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> {
    *     collection, false otherwise.
    */
   public synchronized boolean remove(T data) {
+    return remove(data, true);
+  }
+
+  public synchronized boolean remove(T data, Boolean deleteFile) {
     if (!set.contains(data) || getByID(data.getID()).isEmpty()) {
       return false;
     }
     set.remove(data);
-    getCRUD().deleteData(data);
+    if (deleteFile) {
+      getCRUD().deleteData(data);
+    }
     return true;
   }
 
@@ -160,12 +172,18 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> {
    * @return True if the data object was successfully updated, false otherwise.
    */
   public synchronized boolean update(T data) {
+    return update(data, true);
+  }
+
+  public synchronized boolean update(T data, Boolean updateFile) {
     if (getByID(data.getID()).isEmpty()) {
       return false;
     }
     set.remove(getByID(data.getID()).get());
     set.add(data);
-    getCRUD().saveData(data);
+    if (updateFile) {
+      getCRUD().saveData(data);
+    }
     return true;
   }
 
