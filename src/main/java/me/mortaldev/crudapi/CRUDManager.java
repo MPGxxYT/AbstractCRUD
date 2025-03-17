@@ -1,6 +1,7 @@
 package me.mortaldev.crudapi;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 
@@ -49,6 +50,21 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> {
       }
       set.add(data.get());
     }
+  }
+
+  public boolean loadByID(String id) {
+    File file = new File(getCRUD().getPath()+id+".json");
+    if (!file.exists()) {
+      return false;
+    }
+    Optional<T> data = getCRUD().getData(id);
+    if (data.isEmpty()) {
+      log("Failed to load data: " + file.getName() + ".json");
+      return false;
+    }
+    getByID(id).ifPresent(set::remove);
+    set.add(data.get());
+    return true;
   }
 
   /**
