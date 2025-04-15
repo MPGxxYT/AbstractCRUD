@@ -52,7 +52,7 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
    * @return true if the object was successfully deleted, false otherwise
    */
   public boolean deleteData(T object) {
-    return delete.delete(object, getPath());
+    return delete.delete(object.getID(), getPath());
   }
 
   /**
@@ -61,7 +61,7 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
    * @param object the object to save
    */
   public void saveData(T object) {
-    save.save(object, getPath(), getTypeAdapterHashMap());
+    save.save(object, object.getID(), getPath(), getTypeAdapterHashMap());
   }
 
   public interface Identifiable {

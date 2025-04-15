@@ -3,5 +3,5 @@ package me.mortaldev.crudapi;
 import java.util.HashMap;
 
 public interface Save {
-  <T extends CRUD.Identifiable> void save(T object, String path, HashMap<Class<?>, Object> typeAdapterHashMap);
+  <T> void save(T object, String id, String path, HashMap<Class<?>, Object> typeAdapterHashMap);
 }
