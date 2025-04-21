@@ -1,14 +1,19 @@
 package me.mortaldev.crudapi;
 
 import com.google.gson.TypeAdapter;
+import me.mortaldev.crudapi.interfaces.Handler;
+import me.mortaldev.crudapi.operations.delete.NormalDelete;
+import me.mortaldev.crudapi.operations.get.GsonGet;
+import me.mortaldev.crudapi.interfaces.Delete;
+import me.mortaldev.crudapi.interfaces.Get;
+import me.mortaldev.crudapi.interfaces.Save;
+import me.mortaldev.crudapi.operations.save.GsonSave;
 
 import java.util.HashMap;
 import java.util.Optional;
 
 public abstract class CRUD<T extends CRUD.Identifiable> {
-  protected Delete delete = new NormalDelete();
-  protected Save save = new GsonSave();
-  protected Get get = new GsonGet();
+  protected Handler handler;
 
   /**
    * Returns the class of the objects that this CRUD system manages.
@@ -23,7 +28,7 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
    *
    * @return a {@link HashMap} containing {@link TypeAdapter}s
    */
-  public abstract HashMap<Class<?>, Object> getTypeAdapterHashMap();
+  public abstract CRUDAdapters getCRUDAdapters();
 
   /**
    * Returns the path to the directory where the data files for this CRUD
@@ -42,7 +47,7 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
    * or an empty {@link Optional} if no data with the given ID exists
    */
   public Optional<T> getData(String id) {
-    return get.get(id, getPath(), getClazz(), getTypeAdapterHashMap());
+    return handler.get().get(id, getPath(), getClazz(), getCRUDAdapters());
   }
 
   /**
@@ -52,7 +57,11 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
    * @return true if the object was successfully deleted, false otherwise
    */
   public boolean deleteData(T object) {
-    return delete.delete(object.getID(), getPath());
+    return handler.delete().delete(object.getID(), getPath());
+  }
+
+  public CRUD(Handler handler) {
+    this.handler = handler;
   }
 
   /**
@@ -61,7 +70,7 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
    * @param object the object to save
    */
   public void saveData(T object) {
-    save.save(object, object.getID(), getPath(), getTypeAdapterHashMap());
+    handler.save().save(object, object.getID(), getPath(), getCRUDAdapters());
   }
 
   public interface Identifiable {

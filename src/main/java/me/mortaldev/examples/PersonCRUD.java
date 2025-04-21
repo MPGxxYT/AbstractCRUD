@@ -1,14 +1,21 @@
 package me.mortaldev.examples;
 
 import me.mortaldev.crudapi.CRUD;
+import me.mortaldev.crudapi.CRUDAdapters;
+import me.mortaldev.crudapi.handlers.GSON;
+import me.mortaldev.crudapi.interfaces.Handler;
 
 import java.util.HashMap;
 import java.util.Optional;
 
 class PersonCRUD extends CRUD<Person> {
 
+  public PersonCRUD(Handler handler) {
+    super(handler);
+  }
+
   private static class SingletonHelper {
-    private static final PersonCRUD personCRUD = new PersonCRUD();
+    private static final PersonCRUD personCRUD = new PersonCRUD(GSON.getInstance());
   }
 
   public static PersonCRUD getPersonCRUD(){
@@ -21,8 +28,8 @@ class PersonCRUD extends CRUD<Person> {
   }
 
   @Override
-  public HashMap<Class<?>, Object> getTypeAdapterHashMap() {
-    return new HashMap<>();
+  public CRUDAdapters getCRUDAdapters() {
+    return new CRUDAdapters().addTypeAdapters(new HashMap<>());
   }
 
   @Override

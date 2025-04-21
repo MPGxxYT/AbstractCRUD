@@ -1,4 +1,6 @@
-package me.mortaldev.crudapi;
+package me.mortaldev.crudapi.operations.delete;
+
+import me.mortaldev.crudapi.interfaces.Delete;
 
 import java.io.File;
 import java.text.MessageFormat;

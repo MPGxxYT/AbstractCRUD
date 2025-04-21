@@ -136,6 +136,18 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> {
     return add(data, true);
   }
 
+  /**
+   * Adds a data object to the collection.
+   *
+   * <p>If the data object is already in the collection, or if a data object with the same ID is
+   * already in the collection, this method will return false. Otherwise, the data object will be
+   * added to the collection and the underlying data store will be updated if the specified save flag
+   * is true.
+   *
+   * @param data The data object to add to the collection.
+   * @param saveToFile If true, the data object will be saved to the underlying data store.
+   * @return True if the data object was successfully added to the collection, false otherwise.
+   */
   public synchronized boolean add(T data, Boolean saveToFile) {
     if (set.contains(data) || getByID(data.getID()).isPresent()) {
       return false;
@@ -188,7 +200,8 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> {
 
   public synchronized boolean update(T data, Boolean updateFile) {
     if (getByID(data.getID()).isEmpty()) {
-      return false;
+      add(data, updateFile);
+      return true;
     }
     set.remove(getByID(data.getID()).get());
     set.add(data);

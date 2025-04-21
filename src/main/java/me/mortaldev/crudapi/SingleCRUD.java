@@ -1,36 +1,49 @@
 package me.mortaldev.crudapi;
 
-import java.util.HashMap;
+import me.mortaldev.crudapi.interfaces.Handler;
+
+import java.util.logging.Logger;
 
 public abstract class SingleCRUD<T> implements CRUD.Identifiable {
-  protected Delete delete = new NormalDelete();
-  protected Save save = new GsonSave();
-  protected Get get = new GsonGet();
+
+  protected Handler handler;
   private T object;
 
   public T get() {
     if (object == null) {
-      log("Failed to load data: " + getID() + ".json");
+      load();
     }
     return object;
   }
 
   public void load() {
-    object = get.get(getID(), getPath(), getClazz(), getTypeAdapterHashMap()).orElse(null);
+    Logger.getLogger("CRUD").info("Loading: " + getClazz() + "," + getID());
+    this.object =
+        handler.get().get(getID(), getPath(), getClazz(), getCRUDAdapters()).orElse(construct());
   }
 
-  public abstract void log(String string);
+  public abstract T construct();
+
   public abstract String getPath();
 
-  public abstract HashMap<Class<?>, Object> getTypeAdapterHashMap();
+  public abstract CRUDAdapters getCRUDAdapters();
 
   public abstract Class<T> getClazz();
 
-  public void save() {
-    save.save(object, getID(), getPath(), getTypeAdapterHashMap());
+  private void save() {
+    handler.save().save(object, getID(), getPath(), getCRUDAdapters());
+  }
+
+  public SingleCRUD(Handler handler) {
+    this.handler = handler;
+  }
+
+  public void save(T object) {
+    this.object = object;
+    save();
   }
 
   public boolean delete() {
-    return delete.delete(getID(), getPath());
+    return handler.delete().delete(getID(), getPath());
   }
 }
