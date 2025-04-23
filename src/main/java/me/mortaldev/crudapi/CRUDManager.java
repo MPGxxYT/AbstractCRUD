@@ -3,6 +3,7 @@ package me.mortaldev.crudapi;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public abstract class CRUDManager<T extends CRUD.Identifiable> {
 
@@ -29,6 +30,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> {
    * using the {@link #log(String)} method.
    */
   public void load() {
+    Logger.getLogger("CRUD").info("Loading: " + getCRUD().getClazz());
     set = new HashSet<>();
     File mineDir = new File(getCRUD().getPath());
     if (!mineDir.exists()) {

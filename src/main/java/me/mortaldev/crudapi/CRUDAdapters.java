@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public class CRUDAdapters {
   private final HashMap<Class<?>, Object> typeAdapterHashMap = new HashMap<>();
-  private final SimpleModule module = new SimpleModule();
+  private SimpleModule module = new SimpleModule();
 
   /**
    * Determines whether this instance is empty, meaning no type adapters have been registered.
@@ -49,6 +49,17 @@ public class CRUDAdapters {
    */
   public SimpleModule getModule() {
     return module;
+  }
+
+  /**
+   * Sets the {@link SimpleModule} containing all serializers and deserializers that are registered to
+   * the given module.
+   *
+   * @param module the module containing the registered serializers and deserializers
+   */
+  public CRUDAdapters setModule(SimpleModule module) {
+    this.module = module;
+    return this;
   }
 
   /**

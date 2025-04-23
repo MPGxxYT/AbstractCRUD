@@ -30,7 +30,7 @@ public class GSON implements Handler {
 
   private GSON() {}
 
-  private static final Logger LOGGER = Logger.getLogger(GSON.class.getName());
+  private static final Logger LOGGER = Logger.getLogger("GSON");
 
   @Override
   public <T> T getJsonObject(File file, Class<T> clazz, CRUDAdapters crudAdapters) {
@@ -49,7 +49,7 @@ public class GSON implements Handler {
       return gson.fromJson(reader, clazz);
     } catch (IOException | JsonSyntaxException e) {
       LOGGER.log(Level.SEVERE, "Failed to read JSON from file: " + file.getPath(), e);
-      return null; // or return a default instance of clazz
+      return null;
     }
   }
 

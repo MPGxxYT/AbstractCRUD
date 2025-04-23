@@ -2,6 +2,7 @@ package me.mortaldev.crudapi;
 
 import me.mortaldev.crudapi.interfaces.Handler;
 
+import java.util.Optional;
 import java.util.logging.Logger;
 
 public abstract class SingleCRUD<T> implements CRUD.Identifiable {
@@ -10,14 +11,11 @@ public abstract class SingleCRUD<T> implements CRUD.Identifiable {
   private T object;
 
   public T get() {
-    if (object == null) {
-      load();
-    }
-    return object;
+    return object == null ? construct() : object;
   }
 
   public void load() {
-    Logger.getLogger("CRUD").info("Loading: " + getClazz() + "," + getID());
+    Logger.getLogger("CRUD").info("Loading: " + getClazz());
     this.object =
         handler.get().get(getID(), getPath(), getClazz(), getCRUDAdapters()).orElse(construct());
   }
@@ -38,8 +36,8 @@ public abstract class SingleCRUD<T> implements CRUD.Identifiable {
     this.handler = handler;
   }
 
-  public void save(T object) {
-    this.object = object;
+  public void save(T newObject) {
+    this.object = newObject;
     save();
   }
 
