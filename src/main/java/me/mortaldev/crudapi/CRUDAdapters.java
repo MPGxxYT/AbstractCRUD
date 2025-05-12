@@ -1,14 +1,16 @@
 package me.mortaldev.crudapi;
 
+import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 
 import java.util.HashMap;
+import java.util.HashSet;
 
 public class CRUDAdapters {
   private final HashMap<Class<?>, Object> typeAdapterHashMap = new HashMap<>();
-  private SimpleModule module = new SimpleModule();
+  private final HashSet<Module> modules = new HashSet<>();
 
   /**
    * Determines whether this instance is empty, meaning no type adapters have been registered.
@@ -41,14 +43,8 @@ public class CRUDAdapters {
     return this;
   }
 
-
-  /**
-   * Gets the {@link SimpleModule} containing all serializers and deserializers that were registered
-   * via {@link #addSerializer(Class, StdSerializer)} or {@link #addDeserializer(Class, StdDeserializer)}.
-   * @return the module containing the registered serializers and deserializers
-   */
-  public SimpleModule getModule() {
-    return module;
+  public HashSet<Module> getModules() {
+    return modules;
   }
 
   /**
@@ -57,8 +53,8 @@ public class CRUDAdapters {
    *
    * @param module the module containing the registered serializers and deserializers
    */
-  public CRUDAdapters setModule(SimpleModule module) {
-    this.module = module;
+  public CRUDAdapters addModule(Module module) {
+    modules.add(module);
     return this;
   }
 
@@ -69,7 +65,8 @@ public class CRUDAdapters {
    * @return this, for method chaining
    */
   public <T> CRUDAdapters addSerializer(Class<T> clazz, StdSerializer<T> serializer) {
-    module.addSerializer(clazz, serializer);
+    SimpleModule simpleModule = new SimpleModule().addSerializer(clazz, serializer);
+    addModule(simpleModule);
     return this;
   }
 
@@ -81,7 +78,8 @@ public class CRUDAdapters {
    * @return this, for method chaining
    */
   public <T> CRUDAdapters addDeserializer(Class<T> clazz, StdDeserializer<T> serializer) {
-    module.addDeserializer(clazz, serializer);
+    SimpleModule simpleModule = new SimpleModule().addDeserializer(clazz, serializer);
+    addModule(simpleModule);
     return this;
   }
 }

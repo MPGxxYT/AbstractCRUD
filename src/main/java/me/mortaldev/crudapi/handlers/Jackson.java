@@ -36,7 +36,7 @@ public class Jackson implements Handler {
 
   public <T> T getJsonObject(File file, Class<T> clazz, CRUDAdapters crudAdapters) {
     ObjectMapper objectMapper = getObjectMapper();
-    objectMapper.registerModule(crudAdapters.getModule());
+    crudAdapters.getModules().forEach(objectMapper::registerModule);
     if (!file.exists()) {
       LOGGER.log(Level.WARNING, "File does not exist: " + file.getPath());
       return null;
@@ -52,8 +52,7 @@ public class Jackson implements Handler {
 
   public void saveJsonObject(File file, Object object, CRUDAdapters crudAdapters) {
     ObjectMapper objectMapper = getObjectMapper();
-    objectMapper.registerModule(crudAdapters.getModule());
-
+    crudAdapters.getModules().forEach(objectMapper::registerModule);
     try {
       file.getParentFile().mkdirs();
       file.createNewFile();
