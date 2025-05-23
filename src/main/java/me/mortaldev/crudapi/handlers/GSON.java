@@ -14,7 +14,7 @@ import me.mortaldev.crudapi.operations.get.GsonGet;
 import me.mortaldev.crudapi.operations.save.GsonSave;
 
 import java.io.*;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -35,7 +35,7 @@ public class GSON implements Handler {
   @Override
   public <T> T getJsonObject(File file, Class<T> clazz, CRUDAdapters crudAdapters) {
     GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
-    HashMap<Class<?>, Object> typeAdapters = crudAdapters.getTypeAdapters();
+    Map<Class<?>, Object> typeAdapters = crudAdapters.getTypeAdapters();
     if (!typeAdapters.isEmpty()) {
       typeAdapters.forEach(gsonBuilder::registerTypeAdapter);
     }
@@ -56,7 +56,7 @@ public class GSON implements Handler {
   @Override
   public void saveJsonObject(File file, Object object, CRUDAdapters crudAdapters) {
     GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
-    HashMap<Class<?>, Object> typeAdapters = crudAdapters.getTypeAdapters();
+    Map<Class<?>, Object> typeAdapters = crudAdapters.getTypeAdapters();
     if (!typeAdapters.isEmpty()) {
       typeAdapters.forEach(gsonBuilder::registerTypeAdapter);
     }
