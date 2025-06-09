@@ -1,188 +1,75 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project version="4">
-  <component name="AutoImportSettings">
-    <option name="autoReloadType" value="SELECTIVE" />
+<project>
+  <component name="FileEditorManager">
+    <leaf ideFingerprint="2km8ohkzjtse8" SIDE_TABS_SIZE_LIMIT_KEY="-1">
+      <file current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/src/main/java/me/mortaldev/jbjuly4th/Main.java">
+          <provider editor-type-id="text-editor" selected="true">
+            <state relative-caret-position="154">
+              <caret line="7" column="25" lean-forward="true" selection-start-line="7" selection-start-column="25" selection-end-line="7" selection-end-column="25" />
+              <folding>
+                <element signature="e#1573#1574#0" expanded="true" />
+                <element signature="e#1598#1599#0" expanded="true" />
+                <element signature="e#1635#1636#0" expanded="true" />
+                <element signature="e#1657#1658#0" expanded="true" />
+                <element signature="e#1777#1778#0" expanded="true" />
+                <element signature="e#1799#1800#0" expanded="true" />
+                <element signature="e#1939#1940#0" expanded="true" />
+                <element signature="e#2012#2013#0" expanded="true" />
+                <element signature="e#2057#2058#0" expanded="true" />
+                <element signature="e#2133#2134#0" expanded="true" />
+                <element signature="e#2180#2181#0" expanded="true" />
+                <element signature="e#2255#2256#0" expanded="true" />
+                <element signature="e#4137#4138#0" expanded="true" />
+                <element signature="e#4184#4185#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+        <tab><![CDATA[{"tabTitle":"Main.java","foregroundColor":-9192071,"textAttributes":{"name":"a","children":[{"name":"option","attributes":{"name":"FOREGROUND","value":"73bd79"}}]},"icon":[10,57,99,111,109,46,105,110,116,101,108,108,105,106,46,117,105,46,105,99,111,110,115,46,82,97,115,116,101,114,105,122,101,100,73,109,97,103,101,68,97,116,97,76,111,97,100,101,114,68,101,115,99,114,105,112,116,111,114,18,62,10,15,110,111,100,101,115,47,99,108,97,115,115,46,115,118,103,18,21,101,120,112,117,105,47,110,111,100,101,115,47,99,108,97,115,115,46,115,118,103,26,12,99,111,109,46,105,110,116,101,108,108,105,106,40,-63,-37,-81,-57,4,48,0]}]]></tab>
+      </file>
+    </leaf>
   </component>
-  <component name="ChangeListManager">
-    <list default="true" id="0b7d99d8-3975-4e16-8b8e-1626deb67ccc" name="Changes" comment="Refactored names to be less dumb.">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-    </list>
-    <option name="SHOW_DIALOG" value="false" />
-    <option name="HIGHLIGHT_CONFLICTS" value="true" />
-    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
-    <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Class" />
-      </list>
+  <component name="MavenImportPreferences">
+    <option name="generalSettings">
+      <MavenGeneralSettings>
+        <option name="alwaysUpdateSnapshots" value="false" />
+        <option name="checksumPolicy" value="NOT_SET" />
+        <option name="customMavenHome" />
+        <option name="emulateTerminal" value="false" />
+        <option name="failureBehavior" value="NOT_SET" />
+        <option name="localRepository" value="" />
+        <option name="mavenHome" value="Bundled (Maven 3)" />
+        <option name="mavenHomeTypeForPersistence" value="BUNDLED3" />
+        <option name="nonRecursive" value="false" />
+        <option name="outputLevel" value="INFO" />
+        <option name="printErrorStackTraces" value="false" />
+        <option name="showDialogWithAdvancedSettings" value="false" />
+        <option name="threads" />
+        <option name="useMavenConfig" value="true" />
+        <option name="userSettingsFile" value="" />
+        <option name="workOffline" value="false" />
+      </MavenGeneralSettings>
     </option>
-  </component>
-  <component name="Git.Settings">
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
-    <option name="ROOT_SYNC" value="SYNC" />
-  </component>
-  <component name="GitHubPullRequestSearchHistory">{
-  &quot;lastFilter&quot;: {
-    &quot;state&quot;: &quot;OPEN&quot;,
-    &quot;assignee&quot;: &quot;MPGxxYT&quot;
-  }
-}</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/MPGxxYT/AbstractCRUD.git&quot;,
-    &quot;accountId&quot;: &quot;e3016051-b245-42fc-8cf7-9f77bc2eb83e&quot;
-  }
-}</component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 7
-}</component>
-  <component name="ProjectId" id="2jMp0VSIkt3fuWQYXCQYCQ0BAqI" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
-    <ConfirmationsSetting value="2" id="Add" />
-  </component>
-  <component name="ProjectViewState">
-    <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showLibraryContents" value="true" />
-  </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Maven.AbstractCRUD [clean].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.AbstractCRUD [compile].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.AbstractCRUD [install].executor&quot;: &quot;Run&quot;,
-    &quot;Maven.AbstractCRUD [package].executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/YTCMP/Desktop/Code-Projects/Java/Minecraft/Plugin/Bukkit/Paper/Libraries/MenuAPI&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
-  }
-}</component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\YTCMP\Desktop\Code-Projects\Java\Minecraft\Plugin\Bukkit\Paper\Libraries\AbstractCRUD\src\main\java\me\mortaldev" />
-    </key>
-  </component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-jdk-9f38398b9061-39b83d9b5494-intellij.indexing.shared.core-IU-241.18034.62" />
-        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-IU-241.18034.62" />
-      </set>
-    </attachedChunks>
-  </component>
-  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
-  <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
-      <changelist id="0b7d99d8-3975-4e16-8b8e-1626deb67ccc" name="Changes" comment="" />
-      <created>1721206576756</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1721206576756</updated>
-      <workItem from="1721206577921" duration="129000" />
-      <workItem from="1721206726088" duration="6000" />
-      <workItem from="1721206944070" duration="369000" />
-      <workItem from="1721207606923" duration="463000" />
-      <workItem from="1721208550407" duration="414000" />
-      <workItem from="1721245807145" duration="469000" />
-      <workItem from="1721249576838" duration="28000" />
-      <workItem from="1721249703705" duration="19000" />
-      <workItem from="1721249885094" duration="9000" />
-      <workItem from="1721250678175" duration="87000" />
-      <workItem from="1721250774914" duration="25000" />
-      <workItem from="1721250888467" duration="49000" />
-      <workItem from="1721252693909" duration="434000" />
-      <workItem from="1721253305196" duration="33000" />
-      <workItem from="1721347081118" duration="148000" />
-      <workItem from="1721347310743" duration="370000" />
-      <workItem from="1721347692410" duration="9000" />
-      <workItem from="1721459842957" duration="13000" />
-      <workItem from="1721461104855" duration="173000" />
-      <workItem from="1721853549740" duration="35000" />
-      <workItem from="1729548643177" duration="68000" />
-      <workItem from="1729550888124" duration="27000" />
-    </task>
-    <task id="LOCAL-00001" summary="Commit 1">
-      <option name="closed" value="true" />
-      <created>1721206981989</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1721206981989</updated>
-    </task>
-    <task id="LOCAL-00002" summary="Commit 1">
-      <option name="closed" value="true" />
-      <created>1721207071943</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1721207071943</updated>
-    </task>
-    <task id="LOCAL-00003" summary="Commit 2">
-      <option name="closed" value="true" />
-      <created>1721207855394</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1721207855394</updated>
-    </task>
-    <task id="LOCAL-00004" summary="I'll consider this the &quot;first commit&quot; since most of the changes are to make the library work on its own.">
-      <option name="closed" value="true" />
-      <created>1721246267086</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1721246267086</updated>
-    </task>
-    <task id="LOCAL-00005" summary="Moved and updated the name to be more fitting.">
-      <option name="closed" value="true" />
-      <created>1721250928603</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1721250928603</updated>
-    </task>
-    <task id="LOCAL-00006" summary="Added examples &amp; updated README.md">
-      <option name="closed" value="true" />
-      <created>1721253122364</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1721253122364</updated>
-    </task>
-    <task id="LOCAL-00007" summary="Refactored names to be less dumb.">
-      <option name="closed" value="true" />
-      <created>1721461265405</created>
-      <option name="number" value="00007" />
-      <option name="presentableId" value="LOCAL-00007" />
-      <option name="project" value="LOCAL" />
-      <updated>1721461265405</updated>
-    </task>
-    <option name="localTasksCounter" value="8" />
-    <servers />
-  </component>
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="Commit 1" />
-    <MESSAGE value="Commit 2" />
-    <MESSAGE value="I'll consider this the &quot;first commit&quot; since most of the changes are to make the library work on its own." />
-    <MESSAGE value="Moved and updated the name to be more fitting." />
-    <MESSAGE value="Added examples &amp; updated README.md" />
-    <MESSAGE value="Refactored names to be less dumb." />
-    <option name="LAST_COMMIT_MESSAGE" value="Refactored names to be less dumb." />
+    <option name="importingSettings">
+      <MavenImportingSettings>
+        <option name="autoDetectCompiler" value="true" />
+        <option name="dedicatedModuleDir" value="" />
+        <option name="dependencyTypes" value="jar, test-jar, maven-plugin, ejb, ejb-client, jboss-har, jboss-sar, war, ear, bundle" />
+        <option name="downloadAnnotationsAutomatically" value="false" />
+        <option name="downloadDocsAutomatically" value="false" />
+        <option name="downloadSourcesAutomatically" value="false" />
+        <option name="excludeTargetFolder" value="true" />
+        <option name="generatedSourcesFolder" value="AUTODETECT" />
+        <option name="importAutomatically" value="false" />
+        <option name="jdkForImporter" value="#USE_PROJECT_JDK" />
+        <option name="keepSourceFolders" value="true" />
+        <option name="lookForNested" value="false" />
+        <option name="updateFoldersOnImportPhase" value="process-resources" />
+        <option name="useMavenOutput" value="true" />
+        <option name="vmOptionsForImporter" value="" />
+      </MavenImportingSettings>
+    </option>
+    <option name="explicitlyEnabledProfiles" />
+    <option name="explicitlyDisabledProfiles" />
   </component>
 </project>
