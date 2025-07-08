@@ -2,12 +2,6 @@ package me.mortaldev.crudapi;
 
 import com.google.gson.TypeAdapter;
 import me.mortaldev.crudapi.interfaces.Handler;
-import me.mortaldev.crudapi.operations.delete.NormalDelete;
-import me.mortaldev.crudapi.operations.get.GsonGet;
-import me.mortaldev.crudapi.interfaces.Delete;
-import me.mortaldev.crudapi.interfaces.Get;
-import me.mortaldev.crudapi.interfaces.Save;
-import me.mortaldev.crudapi.operations.save.GsonSave;
 
 import java.util.HashMap;
 import java.util.Optional;
@@ -57,7 +51,7 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
    * @return true if the object was successfully deleted, false otherwise
    */
   public boolean deleteData(T object) {
-    return handler.delete().delete(object.getID(), getPath());
+    return handler.delete().delete(object.getId(), getPath());
   }
 
   public CRUD(Handler handler) {
@@ -70,7 +64,7 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
    * @param object the object to save
    */
   public void saveData(T object) {
-    handler.save().save(object, object.getID(), getPath(), getCRUDAdapters());
+    handler.save().save(object, object.getId(), getPath(), getCRUDAdapters());
   }
 
   public interface Identifiable {
@@ -79,6 +73,6 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
      *
      * @return the unique identifier for this object
      */
-    String getID();
+    String getId();
   }
 }

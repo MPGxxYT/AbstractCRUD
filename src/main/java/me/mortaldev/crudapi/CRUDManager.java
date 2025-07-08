@@ -1,11 +1,13 @@
 package me.mortaldev.crudapi;
 
+import me.mortaldev.crudapi.loading.ILoadable;
+import me.mortaldev.crudapi.loading.IRegistrable;
+
 import java.io.File;
 import java.util.HashSet;
 import java.util.Optional;
-import java.util.logging.Logger;
 
-public abstract class CRUDManager<T extends CRUD.Identifiable> {
+public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegistrable, ILoadable {
 
   private HashSet<T> set = new HashSet<>();
 
@@ -29,8 +31,8 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> {
    * CRUD#getData(String)} method. If a file in the directory fails to load, a message is logged
    * using the {@link #log(String)} method.
    */
+  @Override
   public void load() {
-    Logger.getLogger("CRUD").info("Loading: " + getCRUD().getClazz());
     set = new HashSet<>();
     File mineDir = new File(getCRUD().getPath());
     if (!mineDir.exists()) {
@@ -77,7 +79,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> {
    */
   public Optional<T> getByID(String id) {
     for (T data : set) {
-      if (data.getID().equals(id)) {
+      if (data.getId().equals(id)) {
         return Optional.of(data);
       }
     }
@@ -93,7 +95,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> {
    * @see #getByID(String)
    */
   public Optional<T> getByID(T data) {
-    return getByID(data.getID());
+    return getByID(data.getId());
   }
 
   /**
@@ -103,22 +105,33 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> {
    * @return True if the given data object is in the collection, false otherwise.
    */
   public boolean contains(T data) {
-    return set.contains(data) || getByID(data.getID()).isPresent();
+    return set.contains(data) || getByID(data.getId()).isPresent();
   }
 
   /**
-   * Returns a {@link HashSet} containing all data objects in the collection.
+   * Retrieve the collection of data objects.
    *
-   * <p>If the collection has not been loaded yet, this method will call {@link #load()} to load the
-   * data objects.
+   * <p>If the collection is empty, this method will attempt to load the data from the underlying
+   * data store.
    *
-   * <p>The returned set is a defensive copy of the actual collection, so modifications to the
-   * returned set will not affect the actual collection.
-   *
-   * @return A {@link HashSet} containing all data objects in the collection.
+   * @return The collection of data objects.
    */
   public HashSet<T> getSet() {
-    if (set.isEmpty()) {
+    return getSet(false);
+  }
+
+  /**
+   * Retrieve the collection of data objects.
+   *
+   * <p>If the collection is empty and the {@code load} parameter is true, this method will attempt
+   * to load the data from the underlying data store.
+   *
+   * @param load If true, and the collection is empty, the data will be loaded from the underlying
+   *     data store.
+   * @return The collection of data objects.
+   */
+  public HashSet<T> getSet(boolean load) {
+    if (set.isEmpty() && load) {
       load();
     }
     return set;
@@ -143,15 +156,15 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> {
    *
    * <p>If the data object is already in the collection, or if a data object with the same ID is
    * already in the collection, this method will return false. Otherwise, the data object will be
-   * added to the collection and the underlying data store will be updated if the specified save flag
-   * is true.
+   * added to the collection and the underlying data store will be updated if the specified save
+   * flag is true.
    *
    * @param data The data object to add to the collection.
    * @param saveToFile If true, the data object will be saved to the underlying data store.
    * @return True if the data object was successfully added to the collection, false otherwise.
    */
   public synchronized boolean add(T data, Boolean saveToFile) {
-    if (set.contains(data) || getByID(data.getID()).isPresent()) {
+    if (set.contains(data) || getByID(data.getId()).isPresent()) {
       return false;
     }
     set.add(data);
@@ -176,7 +189,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> {
   }
 
   public synchronized boolean remove(T data, Boolean deleteFile) {
-    if (!set.contains(data) || getByID(data.getID()).isEmpty()) {
+    if (!set.contains(data) || getByID(data.getId()).isEmpty()) {
       return false;
     }
     set.remove(data);
@@ -201,11 +214,11 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> {
   }
 
   public synchronized boolean update(T data, Boolean updateFile) {
-    if (getByID(data.getID()).isEmpty()) {
+    if (getByID(data.getId()).isEmpty()) {
       add(data, updateFile);
       return true;
     }
-    set.remove(getByID(data.getID()).get());
+    set.remove(getByID(data.getId()).get());
     set.add(data);
     if (updateFile) {
       getCRUD().saveData(data);

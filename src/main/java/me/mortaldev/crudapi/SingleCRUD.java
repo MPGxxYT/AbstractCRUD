@@ -1,11 +1,10 @@
 package me.mortaldev.crudapi;
 
 import me.mortaldev.crudapi.interfaces.Handler;
+import me.mortaldev.crudapi.loading.ILoadable;
+import me.mortaldev.crudapi.loading.IRegistrable;
 
-import java.util.Optional;
-import java.util.logging.Logger;
-
-public abstract class SingleCRUD<T> implements CRUD.Identifiable {
+public abstract class SingleCRUD<T> implements CRUD.Identifiable, IRegistrable, ILoadable {
 
   protected Handler handler;
   private T object;
@@ -14,10 +13,10 @@ public abstract class SingleCRUD<T> implements CRUD.Identifiable {
     return object == null ? construct() : object;
   }
 
+  @Override
   public void load() {
-    Logger.getLogger("CRUD").info("Loading: " + getClazz());
     this.object =
-        handler.get().get(getID(), getPath(), getClazz(), getCRUDAdapters()).orElse(construct());
+        handler.get().get(getId(), getPath(), getClazz(), getCRUDAdapters()).orElse(construct());
   }
 
   public abstract T construct();
@@ -29,7 +28,7 @@ public abstract class SingleCRUD<T> implements CRUD.Identifiable {
   public abstract Class<T> getClazz();
 
   private void save() {
-    handler.save().save(object, getID(), getPath(), getCRUDAdapters());
+    handler.save().save(object, getId(), getPath(), getCRUDAdapters());
   }
 
   public SingleCRUD(Handler handler) {
@@ -42,6 +41,6 @@ public abstract class SingleCRUD<T> implements CRUD.Identifiable {
   }
 
   public boolean delete() {
-    return handler.delete().delete(getID(), getPath());
+    return handler.delete().delete(getId(), getPath());
   }
 }
