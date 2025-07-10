@@ -26,7 +26,6 @@ or
 @AutoRegister // Makes it discoverable
 public class Manager extends CRUDManager<MyClazz> {
   private Manager() {
-    super(Jackson.getInstance());
     CRUDRegistry.getInstance().register(this); // Registers it with the CRUD system, otherwise data wont load.
   }
 }
