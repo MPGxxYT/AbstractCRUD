@@ -24,8 +24,8 @@ public class MySingleCRUD extends SingleCRUD<MyClazz> {
 or
 ```java
 @AutoRegister // Makes it discoverable
-public class MyCRUD extends CRUD<MyClazz> {
-  private MyCRUD() {
+public class Manager extends CRUDManager<MyClazz> {
+  private Manager() {
     super(Jackson.getInstance());
     CRUDRegistry.getInstance().register(this); // Registers it with the CRUD system, otherwise data wont load.
   }
