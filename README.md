@@ -14,8 +14,8 @@ Into your JavaPlugin class, register with this:
 Registering the Managers [works the same with both types]
 ```java
 @AutoRegister // Makes it discoverable
-public class Manager extends SingleCRUD<MyClazz> {
-  private Manager() {
+public class MySingleCRUD extends SingleCRUD<MyClazz> {
+  private MySingleCRUD() {
     super(Jackson.getInstance());
     CRUDRegistry.getInstance().register(this); // Registers it with the CRUD system, otherwise data wont load.
   }
@@ -24,8 +24,8 @@ public class Manager extends SingleCRUD<MyClazz> {
 or
 ```java
 @AutoRegister // Makes it discoverable
-public class Manager extends CRUDManager<MyClazz> {
-  private Manager() {
+public class MyCRUD extends CRUD<MyClazz> {
+  private MyCRUD() {
     super(Jackson.getInstance());
     CRUDRegistry.getInstance().register(this); // Registers it with the CRUD system, otherwise data wont load.
   }
