@@ -1,5 +1,6 @@
 package me.mortaldev.crudapi.loading;
 
+import me.mortaldev.crudapi.CRUDAdapters;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
@@ -15,6 +16,7 @@ public class CRUDRegistry {
 
   private static final Logger CRUD_LOGGER = Logger.getLogger("CRUDRegistry");
   private boolean loggingEnabled = false;
+  private final CRUDAdapters globalCRUDAdapters = new CRUDAdapters();
 
   private static class Singleton {
     private static final CRUDRegistry INSTANCE = new CRUDRegistry();
@@ -25,6 +27,16 @@ public class CRUDRegistry {
   }
 
   private CRUDRegistry() {}
+
+  /**
+   * Returns the globally configured CRUDAdapters instance. You can use this to register adapters
+   * and modules that should apply to all CRUD managers.
+   *
+   * @return The global CRUDAdapters instance.
+   */
+  public CRUDAdapters getGlobalAdapters() {
+    return globalCRUDAdapters;
+  }
 
   /**
    * Enables or disables verbose informational logging for the CRUDRegistry. The manager

@@ -6,8 +6,9 @@ It's built to allow any type of CRUD based on the interface.
 
 Into your JavaPlugin class, register with this:
 ```java
-    CRUDRegistry.getInstance()
-        .scanAndRegister(this.getClass().getClassLoader(), "me.mortaldev.<dir>"); // example: me.mortaldev.jbjuly4th
+    CRUDRegistry registry = CRUDRegistry.getInstance();
+    registry.getGlobalAdapters().addModule(new JavaTimeModule()); // To be automatically added to every manager.
+    registry.scanAndRegister(this.getClass().getClassLoader(), "me.mortaldev.<dir>"); // example: me.mortaldev.jbjuly4th
     CRUDRegistry.getInstance().initialize();
 ```
 

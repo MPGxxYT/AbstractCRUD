@@ -141,4 +141,22 @@ public class CRUDAdapters {
     return this;
   }
   // </editor-fold>
+
+  /**
+   * Merges this CRUDAdapters instance with another, creating a new instance with the combined
+   * configurations. Adapters from 'this' instance take precedence over the 'other' instance if
+   * there are conflicts.
+   *
+   * @param other The CRUDAdapters instance to merge with.
+   * @return A new CRUDAdapters instance containing the merged adapters and modules.
+   */
+  public CRUDAdapters mergeWith(CRUDAdapters other) {
+    CRUDAdapters merged = new CRUDAdapters();
+    merged.addTypeAdapters(other.gsonTypeAdapters);
+    merged.addTypeAdapters(this.gsonTypeAdapters); // this overwrites other
+    other.additionalJacksonModules.forEach(merged::addModule);
+    merged.addModule(other.primaryJacksonModule);
+    merged.addModule(this.primaryJacksonModule); // this is added last
+    return merged;
+  }
 }

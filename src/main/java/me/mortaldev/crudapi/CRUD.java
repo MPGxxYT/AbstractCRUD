@@ -1,6 +1,7 @@
 package me.mortaldev.crudapi;
 
 import com.google.gson.TypeAdapter;
+import me.mortaldev.crudapi.loading.CRUDRegistry;
 import me.mortaldev.crudapi.interfaces.Handler;
 
 import java.util.HashMap;
@@ -34,6 +35,16 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
   public abstract String getPath();
 
   /**
+   * Returns a new {@link CRUDAdapters} instance containing both the global adapters from {@link
+   * CRUDRegistry} and the specific adapters for this CRUD implementation.
+   *
+   * @return A combined {@link CRUDAdapters} instance.
+   */
+  protected CRUDAdapters getCombinedAdapters() {
+    return getCRUDAdapters().mergeWith(CRUDRegistry.getInstance().getGlobalAdapters());
+  }
+
+  /**
    * Returns the data associated with the given ID from the data storage.
    *
    * @param id the ID of the data to retrieve
@@ -41,7 +52,7 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
    * or an empty {@link Optional} if no data with the given ID exists
    */
   public Optional<T> getData(String id) {
-    return handler.get().get(id, getPath(), getClazz(), getCRUDAdapters());
+    return handler.get().get(id, getPath(), getClazz(), getCombinedAdapters());
   }
 
   /**
@@ -64,7 +75,7 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
    * @param object the object to save
    */
   public void saveData(T object) {
-    handler.save().save(object, object.getId(), getPath(), getCRUDAdapters());
+    handler.save().save(object, object.getId(), getPath(), getCombinedAdapters());
   }
 
   public interface Identifiable {
