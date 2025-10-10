@@ -1,6 +1,7 @@
 package me.mortaldev.crudapi;
 
 import me.mortaldev.crudapi.interfaces.Handler;
+import me.mortaldev.crudapi.loading.CRUDRegistry;
 import me.mortaldev.crudapi.loading.ILoadable;
 import me.mortaldev.crudapi.loading.IRegistrable;
 
@@ -15,8 +16,7 @@ public abstract class SingleCRUD<T> implements CRUD.Identifiable, IRegistrable, 
 
   @Override
   public void load() {
-    this.object =
-        handler.get().get(getId(), getPath(), getClazz(), getCRUDAdapters()).orElse(construct());
+    this.object = handler.get().get(getId(), getPath(), getClazz(), getCombinedAdapters()).orElse(construct());
   }
 
   public abstract T construct();
@@ -27,8 +27,18 @@ public abstract class SingleCRUD<T> implements CRUD.Identifiable, IRegistrable, 
 
   public abstract Class<T> getClazz();
 
+  /**
+   * Returns a new {@link CRUDAdapters} instance containing both the global adapters from {@link
+   * CRUDRegistry} and the specific adapters for this CRUD implementation.
+   *
+   * @return A combined {@link CRUDAdapters} instance.
+   */
+  protected CRUDAdapters getCombinedAdapters() {
+    return getCRUDAdapters().mergeWith(CRUDRegistry.getInstance().getGlobalAdapters());
+  }
+
   private void save() {
-    handler.save().save(object, getId(), getPath(), getCRUDAdapters());
+    handler.save().save(object, getId(), getPath(), getCombinedAdapters());
   }
 
   public SingleCRUD(Handler handler) {
