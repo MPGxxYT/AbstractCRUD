@@ -77,13 +77,28 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * @return An {@link Optional} containing the data object with the specified ID, or an empty
    *     {@link Optional} if no such data object exists.
    */
-  public Optional<T> getByID(String id) {
+  public Optional<T> getByID(String id, boolean createNew) {
     for (T data : set) {
       if (data.getId().equals(id)) {
         return Optional.of(data);
       }
     }
+    if (createNew) {
+      return Optional.of(getNewInstance(id));
+    }
     return Optional.empty();
+  }
+
+  /**
+   * Retrieve a data object by its ID.
+   *
+   * @param id The ID of the data object to retrieve.
+   * @return An {@link Optional} containing the data object with the specified ID, or an empty
+   *     {@link Optional} if no such data object exists.
+   */
+
+  public Optional<T> getByID(String id) {
+    return getByID(id, false);
   }
 
   /**
@@ -92,11 +107,48 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * @param data The data object containing the ID of the data object to retrieve.
    * @return An {@link Optional} containing the data object with the specified ID, or an empty
    *     {@link Optional} if no such data object exists.
-   * @see #getByID(String)
+   * @see #getByID(CRUD.Identifiable)
    */
   public Optional<T> getByID(T data) {
-    return getByID(data.getId());
+    return getByID(data.getId(), false);
   }
+
+  /**
+   * Retrieves a data object by its ID, creating a new instance if it doesn't exist.
+   *
+   * @param id The ID of the data object to retrieve or create.
+   * @return The data object with the specified ID, either existing or newly created.
+   */
+
+  public T getByIDCreate(String id) {
+    return getByIDCreate(id, true);
+  }
+
+  /**
+   * Retrieves a data object by its ID, creating a new instance if it doesn't exist.
+   *
+   * @param id The ID of the data object to retrieve or create.
+   * @param add If true, the newly created data object will be added to the collection.
+   * @return The data object with the specified ID, either existing or newly created.
+   */
+
+  public T getByIDCreate(String id, boolean add) {
+    Optional<T> byID = getByID(id, true);
+    T data = byID.orElse(null);
+    if (data != null) {
+      add(data);
+    }
+    return data;
+  }
+
+  /**
+   * Creates a new instance of the data object with the given ID.
+   *
+   * @param string The ID for the new data object.
+   * @return A new instance of the data object.
+   */
+
+  public abstract T getNewInstance(String string);
 
   /**
    * Determine if the given data object is in the collection.
