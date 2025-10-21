@@ -5,12 +5,19 @@ import me.mortaldev.crudapi.handlers.GSON;
 import me.mortaldev.crudapi.interfaces.Save;
 
 import java.io.File;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class GsonSave implements Save {
+  private static final Logger LOGGER = Logger.getLogger("GsonSave");
 
   @Override
   public <T> void save(T object, String id, String path, CRUDAdapters crudAdapters) {
-    File filePath = new File(path + id + ".json");
+    if (object == null || id == null || id.isEmpty() || path == null) {
+      LOGGER.log(Level.WARNING, "Cannot save: object, id, or path is null/empty");
+      return;
+    }
+    File filePath = new File(path, id + ".json");
     GSON.getInstance().saveJsonObject(filePath, object, crudAdapters);
   }
 }

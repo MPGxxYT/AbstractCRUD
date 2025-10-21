@@ -10,11 +10,13 @@ import java.util.Optional;
 public class GsonGet implements Get {
   @Override
   public <T> Optional<T> get(String id, String path, Class<T> clazz, CRUDAdapters crudAdapters) {
-    File filePath = new File(path + id + ".json");
-    if (filePath.exists()) {
-      return Optional.ofNullable(GSON.getInstance().getJsonObject(filePath, clazz, crudAdapters));
-    } else {
+    if (id == null || id.isEmpty() || path == null || clazz == null) {
       return Optional.empty();
     }
+    File filePath = new File(path, id + ".json");
+    if (filePath.exists() && filePath.isFile()) {
+      return Optional.ofNullable(GSON.getInstance().getJsonObject(filePath, clazz, crudAdapters));
+    }
+    return Optional.empty();
   }
 }

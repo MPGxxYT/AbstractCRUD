@@ -37,16 +37,21 @@ public class GSON implements Handler {
 
   @Override
   public <T> T getJsonObject(File file, Class<T> clazz, CRUDAdapters crudAdapters) {
+    if (file == null || clazz == null || crudAdapters == null) {
+      LOGGER.log(Level.WARNING, "Invalid parameters: file, class, or adapters is null");
+      return null;
+    }
+    if (!file.exists() || !file.isFile()) {
+      LOGGER.log(Level.WARNING, "File does not exist or is not a file: " + file.getPath());
+      return null;
+    }
+
     GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
     Map<Class<?>, Object> typeAdapters = crudAdapters.getTypeAdapters();
     if (!typeAdapters.isEmpty()) {
       typeAdapters.forEach(gsonBuilder::registerTypeAdapter);
     }
     Gson gson = gsonBuilder.create();
-    if (!file.exists()) {
-      LOGGER.log(Level.WARNING, "File does not exist: " + file.getPath());
-      return null;
-    }
 
     try (Reader reader = new FileReader(file)) {
       return gson.fromJson(reader, clazz);
@@ -68,6 +73,11 @@ public class GSON implements Handler {
    */
   @Override
   public void saveJsonObject(File file, Object object, CRUDAdapters crudAdapters) {
+    if (file == null || object == null || crudAdapters == null) {
+      LOGGER.log(Level.WARNING, "Invalid parameters: file, object, or adapters is null");
+      return;
+    }
+
     GsonBuilder gsonBuilder = new GsonBuilder().setPrettyPrinting();
     Map<Class<?>, Object> typeAdapters = crudAdapters.getTypeAdapters();
     if (!typeAdapters.isEmpty()) {
@@ -75,13 +85,16 @@ public class GSON implements Handler {
     }
     Gson gson = gsonBuilder.create();
 
+    File tempFile = null;
     try {
       // Ensure parent directory exists
-      Path parentDir = file.getParentFile().toPath();
-      Files.createDirectories(parentDir);
+      File parentDir = file.getParentFile();
+      if (parentDir != null && !parentDir.exists()) {
+        Files.createDirectories(parentDir.toPath());
+      }
 
       // Write to temporary file first (atomic write pattern)
-      File tempFile = new File(file.getParent(), file.getName() + ".tmp");
+      tempFile = new File(file.getParent(), file.getName() + ".tmp");
 
       try (Writer writer = new FileWriter(tempFile, false)) {
         gson.toJson(object, writer);
@@ -97,6 +110,14 @@ public class GSON implements Handler {
 
     } catch (IOException | JsonIOException e) {
       LOGGER.log(Level.SEVERE, "Failed to save JSON to file: " + file.getPath(), e);
+      // Clean up temp file if it exists
+      if (tempFile != null && tempFile.exists()) {
+        try {
+          Files.delete(tempFile.toPath());
+        } catch (IOException cleanupEx) {
+          LOGGER.log(Level.WARNING, "Failed to delete temporary file: " + tempFile.getPath(), cleanupEx);
+        }
+      }
     }
   }
 

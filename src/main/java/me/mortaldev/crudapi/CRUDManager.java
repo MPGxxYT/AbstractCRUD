@@ -6,10 +6,36 @@ import me.mortaldev.crudapi.loading.IRegistrable;
 import java.io.File;
 import java.util.HashSet;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
+/**
+ * Abstract manager class for managing CRUD operations on identifiable data objects.
+ *
+ * <p>This class provides thread-safe management of a collection of objects that can be
+ * created, read, updated, and deleted (CRUD). It includes:
+ * <ul>
+ *   <li>In-memory caching with O(1) ID lookups via {@link ConcurrentHashMap}</li>
+ *   <li>Thread-safe synchronized operations for add, remove, update, and load</li>
+ *   <li>Automatic file system persistence through the {@link CRUD} interface</li>
+ *   <li>Support for lazy loading and eager loading patterns</li>
+ * </ul>
+ *
+ * <p><b>Thread Safety:</b> All mutating operations (add, remove, update, load) are synchronized.
+ * Read operations use a concurrent cache for efficient concurrent access.
+ *
+ * <p><b>Performance:</b> The ID cache provides O(1) lookup time compared to O(n) linear search.
+ * Cache is automatically maintained during all data modifications.
+ *
+ * @param <T> The type of data object this manager handles, must implement {@link CRUD.Identifiable}
+ */
 public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegistrable, ILoadable {
 
-  private HashSet<T> set = new HashSet<>();
+  /** Primary data storage using HashSet for efficient contains/remove operations. */
+  private final HashSet<T> set = new HashSet<>();
+
+  /** Concurrent cache mapping IDs to objects for O(1) lookup performance. */
+  private final Map<String, T> idCache = new ConcurrentHashMap<>();
 
   /**
    * Get the CRUD object used by this manager. This is used to load and save data.
@@ -30,13 +56,25 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * Loads all data from the directory specified by {@link #getCRUD()}'s {@link
    * CRUD#getData(String)} method. If a file in the directory fails to load, a message is logged
    * using the {@link #log(String)} method.
+   *
+   * <p>This method:
+   * <ul>
+   *   <li>Clears the existing data set and cache before loading</li>
+   *   <li>Creates the directory if it doesn't exist</li>
+   *   <li>Only processes files with .json extension</li>
+   *   <li>Updates both the set and cache for each loaded object</li>
+   * </ul>
+   *
+   * <p><b>Thread Safety:</b> This method is synchronized to prevent concurrent modifications.
    */
   @Override
-  public void load() {
-    set = new HashSet<>();
+  public synchronized void load() {
+    set.clear();
+    idCache.clear();
     File mineDir = new File(getCRUD().getPath());
     if (!mineDir.exists()) {
       if (!mineDir.mkdirs()) {
+        log("Failed to create directory: " + mineDir.getPath());
         return;
       }
     }
@@ -45,41 +83,69 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
       return;
     }
     for (File file : files) {
+      if (!file.isFile() || !file.getName().endsWith(".json")) {
+        continue;
+      }
       String fileNameWithoutExtension = file.getName().replace(".json", "");
       Optional<T> data = getCRUD().getData(fileNameWithoutExtension);
       if (data.isEmpty()) {
-        log("Failed to load data: " + file.getName() + ".json");
+        log("Failed to load data: " + file.getName());
         continue;
       }
-      set.add(data.get());
+      T loadedData = data.get();
+      set.add(loadedData);
+      idCache.put(loadedData.getId(), loadedData);
     }
   }
 
-  public boolean loadByID(String id) {
-    File file = new File(getCRUD().getPath() + id + ".json");
+  public synchronized boolean loadByID(String id) {
+    if (id == null || id.isEmpty()) {
+      log("Cannot load data with null or empty ID");
+      return false;
+    }
+    File file = new File(getCRUD().getPath(), id + ".json");
     if (!file.exists()) {
       return false;
     }
     Optional<T> data = getCRUD().getData(id);
     if (data.isEmpty()) {
-      log("Failed to load data: " + file.getName() + ".json");
+      log("Failed to load data: " + file.getName());
       return false;
     }
-    getByID(id).ifPresent(set::remove);
-    set.add(data.get());
+    T loadedData = data.get();
+    getByID(id).ifPresent(existing -> {
+      set.remove(existing);
+      idCache.remove(id);
+    });
+    set.add(loadedData);
+    idCache.put(id, loadedData);
     return true;
   }
 
   /**
-   * Retrieve a data object by its ID.
+   * Retrieve a data object by its ID with optional creation if not found.
    *
-   * @param id The ID of the data object to retrieve.
+   * <p><b>Performance:</b> This method uses a concurrent cache for O(1) lookup time
+   * instead of O(n) linear search. Falls back to linear search if cache is out of sync.
+   *
+   * @param id The ID of the data object to retrieve (null-safe)
+   * @param createNew If true, creates a new instance via {@link #getNewInstance(String)} if not found
    * @return An {@link Optional} containing the data object with the specified ID, or an empty
-   *     {@link Optional} if no such data object exists.
+   *     {@link Optional} if no such data object exists and createNew is false
    */
   public Optional<T> getByID(String id, boolean createNew) {
+    if (id == null) {
+      return Optional.empty();
+    }
+    // Check cache first for O(1) lookup
+    T cached = idCache.get(id);
+    if (cached != null) {
+      return Optional.of(cached);
+    }
+    // Fallback to linear search (in case cache is out of sync)
     for (T data : set) {
-      if (data.getId().equals(id)) {
+      if (id.equals(data.getId())) {
+        idCache.put(id, data); // Update cache
         return Optional.of(data);
       }
     }
@@ -216,10 +282,15 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * @return True if the data object was successfully added to the collection, false otherwise.
    */
   public synchronized boolean add(T data, Boolean saveToFile) {
+    if (data == null || data.getId() == null) {
+      log("Cannot add null data or data with null ID");
+      return false;
+    }
     if (set.contains(data) || getByID(data.getId()).isPresent()) {
       return false;
     }
     set.add(data);
+    idCache.put(data.getId(), data);
     if (saveToFile) {
       getCRUD().saveData(data);
     }
@@ -241,10 +312,15 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
   }
 
   public synchronized boolean remove(T data, Boolean deleteFile) {
-    if (!set.contains(data) || getByID(data.getId()).isEmpty()) {
+    if (data == null || data.getId() == null) {
+      log("Cannot remove null data or data with null ID");
+      return false;
+    }
+    if (!set.contains(data) && getByID(data.getId()).isEmpty()) {
       return false;
     }
     set.remove(data);
+    idCache.remove(data.getId());
     if (deleteFile) {
       getCRUD().deleteData(data);
     }
@@ -266,12 +342,17 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
   }
 
   public synchronized boolean update(T data, Boolean updateFile) {
-    if (getByID(data.getId()).isEmpty()) {
-      add(data, updateFile);
-      return true;
+    if (data == null || data.getId() == null) {
+      log("Cannot update null data or data with null ID");
+      return false;
     }
-    set.remove(getByID(data.getId()).get());
+    Optional<T> existing = getByID(data.getId());
+    if (existing.isEmpty()) {
+      return add(data, updateFile);
+    }
+    set.remove(existing.get());
     set.add(data);
+    idCache.put(data.getId(), data);
     if (updateFile) {
       getCRUD().saveData(data);
     }

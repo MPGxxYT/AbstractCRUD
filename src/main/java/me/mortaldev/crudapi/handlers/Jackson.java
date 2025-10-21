@@ -38,12 +38,17 @@ public class Jackson implements Handler {
   }
 
   public <T> T getJsonObject(File file, Class<T> clazz, CRUDAdapters crudAdapters) {
-    ObjectMapper objectMapper = getObjectMapper();
-    crudAdapters.getModules().forEach(objectMapper::registerModule);
-    if (!file.exists()) {
-      LOGGER.log(Level.WARNING, "File does not exist: " + file.getPath());
+    if (file == null || clazz == null || crudAdapters == null) {
+      LOGGER.log(Level.WARNING, "Invalid parameters: file, class, or adapters is null");
       return null;
     }
+    if (!file.exists() || !file.isFile()) {
+      LOGGER.log(Level.WARNING, "File does not exist or is not a file: " + file.getPath());
+      return null;
+    }
+
+    ObjectMapper objectMapper = getObjectMapper();
+    crudAdapters.getModules().forEach(objectMapper::registerModule);
 
     try {
       return objectMapper.readValue(file, clazz);
@@ -64,16 +69,24 @@ public class Jackson implements Handler {
    * @param crudAdapters Adapters for custom serialization
    */
   public void saveJsonObject(File file, Object object, CRUDAdapters crudAdapters) {
+    if (file == null || object == null || crudAdapters == null) {
+      LOGGER.log(Level.WARNING, "Invalid parameters: file, object, or adapters is null");
+      return;
+    }
+
     ObjectMapper objectMapper = getObjectMapper();
     crudAdapters.getModules().forEach(objectMapper::registerModule);
 
+    File tempFile = null;
     try {
       // Ensure parent directory exists
-      Path parentDir = file.getParentFile().toPath();
-      Files.createDirectories(parentDir);
+      File parentDir = file.getParentFile();
+      if (parentDir != null && !parentDir.exists()) {
+        Files.createDirectories(parentDir.toPath());
+      }
 
       // Write to temporary file first (atomic write pattern)
-      File tempFile = new File(file.getParent(), file.getName() + ".tmp");
+      tempFile = new File(file.getParent(), file.getName() + ".tmp");
 
       try (FileWriter writer = new FileWriter(tempFile)) {
         objectMapper.writerWithDefaultPrettyPrinter().writeValue(writer, object);
@@ -88,6 +101,14 @@ public class Jackson implements Handler {
 
     } catch (IOException | JsonIOException e) {
       LOGGER.log(Level.SEVERE, "Failed to save JSON to file: " + file.getPath(), e);
+      // Clean up temp file if it exists
+      if (tempFile != null && tempFile.exists()) {
+        try {
+          Files.delete(tempFile.toPath());
+        } catch (IOException cleanupEx) {
+          LOGGER.log(Level.WARNING, "Failed to delete temporary file: " + tempFile.getPath(), cleanupEx);
+        }
+      }
     }
   }
 
