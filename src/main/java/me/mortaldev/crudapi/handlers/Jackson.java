@@ -21,15 +21,64 @@ import java.util.logging.Logger;
 
 public class Jackson implements Handler {
 
-  private static class Singleton {
-    private static final Jackson INSTANCE = new Jackson();
-  }
+  private static Jackson globalInstance;
 
+  /**
+   * Creates a new Jackson handler instance.
+   *
+   * <p>This constructor allows for dependency injection patterns where you can create
+   * and manage your own handler instances. This is the recommended approach for new code.
+   *
+   * <p><b>Example usage:</b>
+   * <pre>{@code
+   * // Create handler instance
+   * Jackson jackson = new Jackson();
+   *
+   * // Pass to CRUD implementations
+   * ProfileCRUD crud = new ProfileCRUD(jackson);
+   * }</pre>
+   */
+  public Jackson() {}
+
+  /**
+   * Returns the global singleton instance of Jackson handler.
+   *
+   * @return The global Jackson instance
+   * @deprecated Use dependency injection instead. Create your own instance with {@code new Jackson()}
+   *             and pass it to your CRUD implementations via constructor injection. This method will be
+   *             removed in a future version.
+   *             <p><b>Migration:</b>
+   *             <pre>{@code
+   * // Old way (deprecated):
+   * CRUD<Profile> crud = new ProfileCRUD(Jackson.getInstance());
+   *
+   * // New way (recommended):
+   * Jackson jackson = new Jackson();
+   * CRUD<Profile> crud = new ProfileCRUD(jackson);
+   *             }</pre>
+   */
+  @Deprecated(since = "2.0", forRemoval = true)
   public static Jackson getInstance() {
-    return Singleton.INSTANCE;
+    if (globalInstance == null) {
+      globalInstance = new Jackson();
+    }
+    return globalInstance;
   }
 
-  private Jackson() {}
+  /**
+   * Sets the global singleton instance of Jackson handler.
+   *
+   * <p>This method is provided to maintain backward compatibility during migration from singleton
+   * to dependency injection. Call this in your initialization if you have code that still uses
+   * {@link #getInstance()}.
+   *
+   * @param instance The Jackson instance to set as global
+   * @deprecated This is a temporary bridge during migration. Once all code uses DI, this method is not needed.
+   */
+  @Deprecated(since = "2.0", forRemoval = true)
+  public static void setGlobalInstance(Jackson instance) {
+    globalInstance = instance;
+  }
 
   private static final Logger LOGGER = Logger.getLogger("Jackson");
 

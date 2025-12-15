@@ -1,5 +1,6 @@
 package me.mortaldev.crudapi;
 
+import me.mortaldev.crudapi.loading.CRUDRegistry;
 import me.mortaldev.crudapi.loading.ILoadable;
 import me.mortaldev.crudapi.loading.IRegistrable;
 
@@ -19,6 +20,7 @@ import java.util.Map;
  *   <li>Thread-safe synchronized operations for add, remove, update, and load</li>
  *   <li>Automatic file system persistence through the {@link CRUD} interface</li>
  *   <li>Support for lazy loading and eager loading patterns</li>
+ *   <li>Dependency injection support for testability and flexibility</li>
  * </ul>
  *
  * <p><b>Thread Safety:</b> All mutating operations (add, remove, update, load) are synchronized.
@@ -26,6 +28,28 @@ import java.util.Map;
  *
  * <p><b>Performance:</b> The ID cache provides O(1) lookup time compared to O(n) linear search.
  * Cache is automatically maintained during all data modifications.
+ *
+ * <p><b>Dependency Injection:</b> Use the constructor {@link #CRUDManager(CRUD, CRUDRegistry)}
+ * to pass dependencies explicitly. The old pattern of overriding {@link #getCRUD()} is deprecated.
+ *
+ * <p><b>Example usage (new DI pattern):</b>
+ * <pre>{@code
+ * public class ProfileManager extends CRUDManager<Profile> {
+ *     public ProfileManager(CRUD<Profile> crud, CRUDRegistry registry) {
+ *         super(crud, registry);
+ *     }
+ *
+ *     @Override
+ *     public Profile getNewInstance(String id) {
+ *         return Profile.create(id);
+ *     }
+ *
+ *     @Override
+ *     public void log(String message) {
+ *         logger.info(message);
+ *     }
+ * }
+ * }</pre>
  *
  * @param <T> The type of data object this manager handles, must implement {@link CRUD.Identifiable}
  */
@@ -37,12 +61,92 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
   /** Concurrent cache mapping IDs to objects for O(1) lookup performance. */
   private final Map<String, T> idCache = new ConcurrentHashMap<>();
 
+  /** The CRUD implementation for persistence operations. */
+  private CRUD<T> crud;
+
+  /** The registry this manager is registered with. */
+  private CRUDRegistry registry;
+
   /**
-   * Get the CRUD object used by this manager. This is used to load and save data.
+   * Constructor with dependency injection (recommended).
    *
-   * @return The CRUD object used by this manager.
+   * <p>This constructor allows you to inject dependencies explicitly, enabling proper testing
+   * and avoiding the singleton pattern. Use this constructor for all new code.
+   *
+   * <p><b>Example:</b>
+   * <pre>{@code
+   * // In your plugin's onEnable():
+   * CRUDRegistry registry = new CRUDRegistry();
+   * ProfileCRUD crud = new ProfileCRUD(storagePath, jackson);
+   * crud.setRegistry(registry);
+   * ProfileManager manager = new ProfileManager(crud, registry);
+   * }</pre>
+   *
+   * @param crud The CRUD implementation for persistence
+   * @param registry The registry to register this manager with (can be null if no registration needed)
    */
-  public abstract CRUD<T> getCRUD();
+  protected CRUDManager(CRUD<T> crud, CRUDRegistry registry) {
+    this.crud = crud;
+    this.registry = registry;
+    if (registry != null) {
+      registry.register(this);
+    }
+  }
+
+  /**
+   * Default constructor for backward compatibility.
+   *
+   * <p>Subclasses using this constructor must override {@link #getCRUD()} to provide
+   * the CRUD implementation. This approach is deprecated in favor of dependency injection.
+   *
+   * @deprecated Use {@link #CRUDManager(CRUD, CRUDRegistry)} instead to inject dependencies explicitly.
+   *             Overriding {@link #getCRUD()} leads to hidden dependencies and makes testing difficult.
+   *             <p><b>Migration:</b>
+   *             <pre>{@code
+   * // Old way (deprecated):
+   * public class ProfileManager extends CRUDManager<Profile> {
+   *     private ProfileManager() {
+   *         CRUDRegistry.getInstance().register(this);
+   *     }
+   *
+   *     @Override
+   *     public CRUD<Profile> getCRUD() {
+   *         return ProfileCRUD.getInstance(); // Hidden dependency
+   *     }
+   * }
+   *
+   * // New way (recommended):
+   * public class ProfileManager extends CRUDManager<Profile> {
+   *     public ProfileManager(CRUD<Profile> crud, CRUDRegistry registry) {
+   *         super(crud, registry); // Explicit dependencies
+   *     }
+   * }
+   *             }</pre>
+   */
+  @Deprecated(since = "2.0", forRemoval = true)
+  protected CRUDManager() {
+    // Backward compatibility: subclass must override getCRUD()
+  }
+
+  /**
+   * Get the CRUD object used by this manager.
+   *
+   * <p>When using the new DI constructor {@link #CRUDManager(CRUD, CRUDRegistry)},
+   * this method returns the injected CRUD instance. When using the deprecated default constructor,
+   * subclasses must override this method.
+   *
+   * @return The CRUD object used by this manager
+   * @deprecated When using DI, you don't need to override this method. It's only needed for backward compatibility.
+   */
+  @Deprecated(since = "2.0", forRemoval = false)
+  public CRUD<T> getCRUD() {
+    if (crud != null) {
+      return crud;
+    }
+    throw new UnsupportedOperationException(
+        "getCRUD() must be overridden when using the default constructor. " +
+        "Consider using the CRUDManager(CRUD, CRUDRegistry) constructor instead.");
+  }
 
   /**
    * Log a message to the console. This is used for logging messages to the console from within this

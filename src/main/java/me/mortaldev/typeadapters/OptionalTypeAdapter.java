@@ -8,6 +8,7 @@ import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.logging.Logger;
 
 public class OptionalTypeAdapter<T> extends TypeAdapter<Optional<T>> {
 
@@ -35,9 +36,10 @@ public class OptionalTypeAdapter<T> extends TypeAdapter<Optional<T>> {
         isPresent = in.nextBoolean();
       } else if (name.equals("value") && isPresent) {
         try {
-          value = new Gson().fromJson(in.nextString(), new TypeToken<T>(){}.getType());
+          value = new Gson().fromJson(in.nextString(), new TypeToken<T>() {}.getType());
         } catch (Exception e) {
-          System.err.println("Error deserializing Optional value: " + e.getMessage());
+          Logger.getLogger("AbstractCRUD")
+              .severe("Error deserializing Optional value: " + e.getMessage());
           return Optional.empty();
         }
       }

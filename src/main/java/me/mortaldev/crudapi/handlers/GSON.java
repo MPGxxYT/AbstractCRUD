@@ -23,15 +23,64 @@ import java.util.logging.Logger;
 
 public class GSON implements Handler {
 
-  private static class Singleton {
-    private static final GSON INSTANCE = new GSON();
-  }
+  private static GSON globalInstance;
 
+  /**
+   * Creates a new GSON handler instance.
+   *
+   * <p>This constructor allows for dependency injection patterns where you can create
+   * and manage your own handler instances. This is the recommended approach for new code.
+   *
+   * <p><b>Example usage:</b>
+   * <pre>{@code
+   * // Create handler instance
+   * GSON gson = new GSON();
+   *
+   * // Pass to CRUD implementations
+   * ProfileCRUD crud = new ProfileCRUD(gson);
+   * }</pre>
+   */
+  public GSON() {}
+
+  /**
+   * Returns the global singleton instance of GSON handler.
+   *
+   * @return The global GSON instance
+   * @deprecated Use dependency injection instead. Create your own instance with {@code new GSON()}
+   *             and pass it to your CRUD implementations via constructor injection. This method will be
+   *             removed in a future version.
+   *             <p><b>Migration:</b>
+   *             <pre>{@code
+   * // Old way (deprecated):
+   * CRUD<Profile> crud = new ProfileCRUD(GSON.getInstance());
+   *
+   * // New way (recommended):
+   * GSON gson = new GSON();
+   * CRUD<Profile> crud = new ProfileCRUD(gson);
+   *             }</pre>
+   */
+  @Deprecated(since = "2.0", forRemoval = true)
   public static GSON getInstance() {
-    return Singleton.INSTANCE;
+    if (globalInstance == null) {
+      globalInstance = new GSON();
+    }
+    return globalInstance;
   }
 
-  private GSON() {}
+  /**
+   * Sets the global singleton instance of GSON handler.
+   *
+   * <p>This method is provided to maintain backward compatibility during migration from singleton
+   * to dependency injection. Call this in your initialization if you have code that still uses
+   * {@link #getInstance()}.
+   *
+   * @param instance The GSON instance to set as global
+   * @deprecated This is a temporary bridge during migration. Once all code uses DI, this method is not needed.
+   */
+  @Deprecated(since = "2.0", forRemoval = true)
+  public static void setGlobalInstance(GSON instance) {
+    globalInstance = instance;
+  }
 
   private static final Logger LOGGER = Logger.getLogger("GSON");
 

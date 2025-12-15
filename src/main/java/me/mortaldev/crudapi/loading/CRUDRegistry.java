@@ -18,15 +18,70 @@ public class CRUDRegistry {
   private boolean loggingEnabled = false;
   private final CRUDAdapters globalCRUDAdapters = new CRUDAdapters();
 
-  private static class Singleton {
-    private static final CRUDRegistry INSTANCE = new CRUDRegistry();
-  }
+  private static CRUDRegistry globalInstance;
 
+  /**
+   * Creates a new CRUDRegistry instance.
+   *
+   * <p>This constructor allows for dependency injection patterns where you can create
+   * and manage your own registry instance. This is the recommended approach for new code.
+   *
+   * <p><b>Example usage:</b>
+   * <pre>{@code
+   * // In your plugin's onEnable():
+   * CRUDRegistry registry = new CRUDRegistry();
+   * CRUDRegistry.setGlobalInstance(registry); // For backward compatibility
+   *
+   * // Pass to managers via constructor injection
+   * ProfileManager profiles = new ProfileManager(profileCRUD, registry, logger);
+   * }</pre>
+   */
+  public CRUDRegistry() {}
+
+  /**
+   * Returns the global singleton instance of CRUDRegistry.
+   *
+   * @return The global CRUDRegistry instance
+   * @deprecated Use dependency injection instead. Create your own instance with {@code new CRUDRegistry()}
+   *             and pass it to your managers via constructor injection. This method will be removed in a future version.
+   *             <p><b>Migration:</b>
+   *             <pre>{@code
+   * // Old way (deprecated):
+   * CRUDRegistry.getInstance().register(manager);
+   *
+   * // New way (recommended):
+   * CRUDRegistry registry = new CRUDRegistry();
+   * ProfileManager manager = new ProfileManager(crud, registry, logger);
+   *             }</pre>
+   */
+  @Deprecated(since = "2.0", forRemoval = true)
   public static CRUDRegistry getInstance() {
-    return Singleton.INSTANCE;
+    if (globalInstance == null) {
+      globalInstance = new CRUDRegistry();
+    }
+    return globalInstance;
   }
 
-  private CRUDRegistry() {}
+  /**
+   * Sets the global singleton instance of CRUDRegistry.
+   *
+   * <p>This method is provided to maintain backward compatibility during migration from singleton
+   * to dependency injection. Call this in your plugin's initialization if you have code that still
+   * uses {@link #getInstance()}.
+   *
+   * <p><b>Example:</b>
+   * <pre>{@code
+   * CRUDRegistry registry = new CRUDRegistry();
+   * CRUDRegistry.setGlobalInstance(registry); // For old code using getInstance()
+   * }</pre>
+   *
+   * @param instance The registry instance to set as global
+   * @deprecated This is a temporary bridge during migration. Once all code uses DI, this method is not needed.
+   */
+  @Deprecated(since = "2.0", forRemoval = true)
+  public static void setGlobalInstance(CRUDRegistry instance) {
+    globalInstance = instance;
+  }
 
   /**
    * Returns the globally configured CRUDAdapters instance. You can use this to register adapters
