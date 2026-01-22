@@ -119,6 +119,7 @@ public class CRUDRegistry {
     registeredManagers.add(manager);
   }
 
+  @Deprecated
   public void scanAndRegister(ClassLoader loader, String basePackage) {
     logVerbose("Scanning for managers in package: " + basePackage);
     ConfigurationBuilder config =
