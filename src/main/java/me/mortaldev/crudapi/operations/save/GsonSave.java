@@ -18,6 +18,6 @@ public class GsonSave implements Save {
       return;
     }
     File filePath = new File(path, id + ".json");
-    GSON.getInstance().saveJsonObject(filePath, object, crudAdapters);
+    new GSON().saveJsonObject(filePath, object, crudAdapters);
   }
 }

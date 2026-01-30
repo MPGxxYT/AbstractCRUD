@@ -34,7 +34,7 @@ public abstract class SingleCRUD<T> implements CRUD.Identifiable, IRegistrable, 
    * @return A combined {@link CRUDAdapters} instance.
    */
   protected CRUDAdapters getCombinedAdapters() {
-    return getCRUDAdapters().mergeWith(CRUDRegistry.getInstance().getGlobalAdapters());
+    return getCRUDAdapters().mergeWith(new CRUDRegistry().getGlobalAdapters());
   }
 
   private void save() {

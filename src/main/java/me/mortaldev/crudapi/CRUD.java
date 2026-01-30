@@ -61,7 +61,7 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
    * @return A combined {@link CRUDAdapters} instance.
    */
   protected CRUDAdapters getCombinedAdapters() {
-    CRUDRegistry reg = registry != null ? registry : CRUDRegistry.getInstance();
+    CRUDRegistry reg = registry != null ? registry : new CRUDRegistry();
     return getCRUDAdapters().mergeWith(reg.getGlobalAdapters());
   }
 

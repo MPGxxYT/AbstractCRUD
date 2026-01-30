@@ -17,6 +17,6 @@ public class JacksonSave implements Save {
       return;
     }
     File filePath = new File(path, id + ".json");
-    Jackson.getInstance().saveJsonObject(filePath, object, crudAdapters);
+    new Jackson().saveJsonObject(filePath, object, crudAdapters);
   }
 }

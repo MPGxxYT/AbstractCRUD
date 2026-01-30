@@ -16,7 +16,7 @@ public class JacksonGet implements Get {
     }
     File filePath = new File(path, id + ".json");
     if (filePath.exists() && filePath.isFile()) {
-      return Optional.ofNullable(Jackson.getInstance().getJsonObject(filePath, clazz, crudAdapters));
+      return Optional.ofNullable(new Jackson().getJsonObject(filePath, clazz, crudAdapters));
     }
     return Optional.empty();
   }

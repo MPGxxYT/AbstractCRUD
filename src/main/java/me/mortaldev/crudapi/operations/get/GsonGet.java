@@ -15,7 +15,7 @@ public class GsonGet implements Get {
     }
     File filePath = new File(path, id + ".json");
     if (filePath.exists() && filePath.isFile()) {
-      return Optional.ofNullable(GSON.getInstance().getJsonObject(filePath, clazz, crudAdapters));
+      return Optional.ofNullable(new GSON().getJsonObject(filePath, clazz, crudAdapters));
     }
     return Optional.empty();
   }

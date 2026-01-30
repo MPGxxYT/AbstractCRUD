@@ -94,41 +94,6 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
   }
 
   /**
-   * Default constructor for backward compatibility.
-   *
-   * <p>Subclasses using this constructor must override {@link #getCRUD()} to provide
-   * the CRUD implementation. This approach is deprecated in favor of dependency injection.
-   *
-   * @deprecated Use {@link #CRUDManager(CRUD, CRUDRegistry)} instead to inject dependencies explicitly.
-   *             Overriding {@link #getCRUD()} leads to hidden dependencies and makes testing difficult.
-   *             <p><b>Migration:</b>
-   *             <pre>{@code
-   * // Old way (deprecated):
-   * public class ProfileManager extends CRUDManager<Profile> {
-   *     private ProfileManager() {
-   *         CRUDRegistry.getInstance().register(this);
-   *     }
-   *
-   *     @Override
-   *     public CRUD<Profile> getCRUD() {
-   *         return ProfileCRUD.getInstance(); // Hidden dependency
-   *     }
-   * }
-   *
-   * // New way (recommended):
-   * public class ProfileManager extends CRUDManager<Profile> {
-   *     public ProfileManager(CRUD<Profile> crud, CRUDRegistry registry) {
-   *         super(crud, registry); // Explicit dependencies
-   *     }
-   * }
-   *             }</pre>
-   */
-  @Deprecated(since = "2.0", forRemoval = true)
-  protected CRUDManager() {
-    // Backward compatibility: subclass must override getCRUD()
-  }
-
-  /**
    * Get the CRUD object used by this manager.
    *
    * <p>When using the new DI constructor {@link #CRUDManager(CRUD, CRUDRegistry)},
