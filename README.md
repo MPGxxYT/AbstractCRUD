@@ -1,5 +1,7 @@
 # AbstractCRUD
 
+[![](https://jitpack.io/v/MPGxxYT/AbstractCRUD.svg)](https://jitpack.io/#MPGxxYT/AbstractCRUD)
+
 A lightweight, flexible Java library for simple CRUD (Create, Read, Update, Delete) operations with JSON persistence. Designed for Minecraft plugins but suitable for any Java application requiring file-based data storage.
 
 ## Features
@@ -28,22 +30,73 @@ A lightweight, flexible Java library for simple CRUD (Create, Read, Update, Dele
 
 ## Installation
 
-### Maven
+### Maven (JitPack)
+
+Add the JitPack repository to your `pom.xml`:
+
+```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+```
+
+Then add the dependency:
+
+```xml
+<dependency>
+    <groupId>com.github.MPGxxYT</groupId>
+    <artifactId>AbstractCRUD</artifactId>
+    <version>v1.0.0</version>
+</dependency>
+```
+
+### Gradle (JitPack)
+
+Add the JitPack repository:
+
+```groovy
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+```
+
+Then add the dependency:
+
+```groovy
+dependencies {
+    implementation 'com.github.MPGxxYT:AbstractCRUD:v1.0.0'
+}
+```
+
+### Development Builds
+
+For the latest development version, use:
+
+```xml
+<version>master-SNAPSHOT</version>
+```
+
+Note: SNAPSHOT versions may change without notice.
+
+### Local Build
+
+```bash
+git clone https://github.com/MPGxxYT/AbstractCRUD.git
+cd AbstractCRUD
+mvn clean install
+```
+
+Then reference it locally:
 
 ```xml
 <dependency>
     <groupId>me.mortaldev</groupId>
     <artifactId>AbstractCRUD</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0</version>
 </dependency>
-```
-
-### Local Build
-
-```bash
-git clone <repository-url>
-cd AbstractCRUD
-mvn clean install
 ```
 
 ## Quick Start
@@ -725,7 +778,9 @@ This is a personal library, but suggestions and improvements are welcome. Open a
 
 ## Version History
 
-- **1.0-SNAPSHOT** - Initial release
+See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
+
+- **v1.0.0** - Initial stable release
   - Dual Jackson/GSON support
   - Dependency injection pattern
   - Thread-safe operations
