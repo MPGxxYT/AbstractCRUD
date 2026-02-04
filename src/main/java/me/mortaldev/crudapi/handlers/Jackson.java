@@ -20,8 +20,6 @@ import java.util.logging.Logger;
 
 public class Jackson implements Handler {
 
-  private static Jackson globalInstance;
-
   /**
    * Creates a new Jackson handler instance.
    *
@@ -124,12 +122,12 @@ public class Jackson implements Handler {
 
   @Override
   public Get get() {
-    return new JacksonGet();
+    return new JacksonGet(this);
   }
 
   @Override
   public Save save() {
-    return new JacksonSave();
+    return new JacksonSave(this);
   }
 
   @Override

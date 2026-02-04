@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
  * Marks a CRUD manager class for automatic discovery and registration by the CRUDRegistry during
  * plugin startup.
  */
+@Deprecated
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface AutoRegister {}

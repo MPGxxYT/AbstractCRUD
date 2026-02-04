@@ -10,6 +10,7 @@ package me.mortaldev.crudapi.loading;
  *   <li>Implement the singleton pattern with a public static {@code getInstance()} method.</li>
  * </ol>
  */
+@Deprecated
 public interface IRegistrable {
   // This is a marker interface, so it has no methods.
   // Its purpose is to enforce a design contract.

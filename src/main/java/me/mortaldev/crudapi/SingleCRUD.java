@@ -8,7 +8,13 @@ import me.mortaldev.crudapi.loading.IRegistrable;
 public abstract class SingleCRUD<T> implements CRUD.Identifiable, IRegistrable, ILoadable {
 
   protected Handler handler;
+  protected CRUDRegistry crudRegistry;
   private T object;
+
+  public SingleCRUD(Handler handler, CRUDRegistry crudRegistry) {
+    this.handler = handler;
+    this.crudRegistry = crudRegistry;
+  }
 
   public T get() {
     return object == null ? construct() : object;
@@ -34,15 +40,11 @@ public abstract class SingleCRUD<T> implements CRUD.Identifiable, IRegistrable, 
    * @return A combined {@link CRUDAdapters} instance.
    */
   protected CRUDAdapters getCombinedAdapters() {
-    return getCRUDAdapters().mergeWith(new CRUDRegistry().getGlobalAdapters());
+    return getCRUDAdapters().mergeWith(crudRegistry.getGlobalAdapters());
   }
 
   private void save() {
     handler.save().save(object, getId(), getPath(), getCombinedAdapters());
-  }
-
-  public SingleCRUD(Handler handler) {
-    this.handler = handler;
   }
 
   public void save(T newObject) {

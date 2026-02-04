@@ -62,10 +62,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
   private final Map<String, T> idCache = new ConcurrentHashMap<>();
 
   /** The CRUD implementation for persistence operations. */
-  private CRUD<T> crud;
-
-  /** The registry this manager is registered with. */
-  private CRUDRegistry registry;
+  private final CRUD<T> crud;
 
   /**
    * Constructor with dependency injection (recommended).
@@ -87,7 +84,6 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    */
   protected CRUDManager(CRUD<T> crud, CRUDRegistry registry) {
     this.crud = crud;
-    this.registry = registry;
     if (registry != null) {
       registry.register(this);
     }

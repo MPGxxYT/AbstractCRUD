@@ -9,6 +9,11 @@ import me.mortaldev.crudapi.interfaces.Save;
 
 public class JacksonSave implements Save {
   private static final Logger LOGGER = Logger.getLogger("JacksonSave");
+  private final Jackson jackson;
+
+  public JacksonSave(Jackson jackson) {
+    this.jackson = jackson;
+  }
 
   @Override
   public <T> void save(T object, String id, String path, CRUDAdapters crudAdapters) {
@@ -17,6 +22,6 @@ public class JacksonSave implements Save {
       return;
     }
     File filePath = new File(path, id + ".json");
-    new Jackson().saveJsonObject(filePath, object, crudAdapters);
+    jackson.saveJsonObject(filePath, object, crudAdapters);
   }
 }
