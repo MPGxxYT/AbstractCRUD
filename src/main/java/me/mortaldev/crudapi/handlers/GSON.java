@@ -22,8 +22,6 @@ import java.util.logging.Logger;
 
 public class GSON implements Handler {
 
-  private static GSON globalInstance;
-
   /**
    * Creates a new GSON handler instance.
    *
@@ -133,12 +131,12 @@ public class GSON implements Handler {
 
   @Override
   public Get get() {
-    return new GsonGet();
+    return new GsonGet(this);
   }
 
   @Override
   public Save save() {
-    return new GsonSave();
+    return new GsonSave(this);
   }
 
   @Override

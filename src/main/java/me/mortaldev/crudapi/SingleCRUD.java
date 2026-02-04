@@ -17,7 +17,10 @@ public abstract class SingleCRUD<T> implements CRUD.Identifiable, IRegistrable, 
   }
 
   public T get() {
-    return object == null ? construct() : object;
+    if (object == null) {
+      load();
+    }
+    return object;
   }
 
   @Override

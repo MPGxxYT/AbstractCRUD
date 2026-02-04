@@ -264,9 +264,12 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    */
 
   public T getByIDCreate(String id, boolean add) {
-    Optional<T> byID = getByID(id, true);
-    T data = byID.orElse(null);
-    if (data != null) {
+    Optional<T> byID = getByID(id, false);
+    if (byID.isPresent()) {
+      return byID.get();
+    }
+    T data = getNewInstance(id);
+    if (add) {
       add(data);
     }
     return data;

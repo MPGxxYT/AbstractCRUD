@@ -19,6 +19,10 @@ public class NormalDelete implements Delete {
       LOGGER.log(Level.WARNING, "Cannot delete: ID is null or empty");
       return false;
     }
+    if (path == null) {
+      LOGGER.log(Level.WARNING, "Cannot delete: path is null");
+      return false;
+    }
     File filePath = new File(path, id + ".json");
     if (!filePath.exists()) {
       LOGGER.log(Level.WARNING, "Could not delete data: ''{0}'' does not exist.", id);

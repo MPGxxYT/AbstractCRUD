@@ -10,6 +10,11 @@ import java.util.logging.Logger;
 
 public class GsonSave implements Save {
   private static final Logger LOGGER = Logger.getLogger("GsonSave");
+  private final GSON gson;
+
+  public GsonSave(GSON gson) {
+    this.gson = gson;
+  }
 
   @Override
   public <T> void save(T object, String id, String path, CRUDAdapters crudAdapters) {
@@ -18,6 +23,6 @@ public class GsonSave implements Save {
       return;
     }
     File filePath = new File(path, id + ".json");
-    new GSON().saveJsonObject(filePath, object, crudAdapters);
+    gson.saveJsonObject(filePath, object, crudAdapters);
   }
 }
