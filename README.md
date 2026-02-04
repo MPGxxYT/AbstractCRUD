@@ -49,7 +49,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.github.MPGxxYT</groupId>
     <artifactId>AbstractCRUD</artifactId>
-    <version>v1.0.0</version>
+    <version>v1.0.2</version>
 </dependency>
 ```
 
@@ -67,7 +67,7 @@ Then add the dependency:
 
 ```groovy
 dependencies {
-    implementation 'com.github.MPGxxYT:AbstractCRUD:v1.0.0'
+    implementation 'com.github.MPGxxYT:AbstractCRUD:v1.0.2'
 }
 ```
 
@@ -95,7 +95,7 @@ Then reference it locally:
 <dependency>
     <groupId>me.mortaldev</groupId>
     <artifactId>AbstractCRUD</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -132,8 +132,8 @@ public class Profile implements CRUD.Identifiable {
 public class ProfileCRUD extends CRUD<Profile> {
     private final String path;
 
-    public ProfileCRUD(String dataPath, Handler handler) {
-        super(handler);
+    public ProfileCRUD(String dataPath, Handler handler, CRUDRegistry registry) {
+        super(handler, registry);
         this.path = dataPath;
     }
 
@@ -195,10 +195,9 @@ public class MyPlugin extends JavaPlugin {
         registry.getGlobalAdapters()
             .addModule(new JavaTimeModule()); // Jackson: Java 8 Date/Time support
 
-        // 3. Create CRUD instance
+        // 3. Create CRUD instance (pass registry to constructor)
         String dataPath = getDataFolder() + "/profiles";
-        ProfileCRUD crud = new ProfileCRUD(dataPath, jackson);
-        crud.setRegistry(registry);
+        ProfileCRUD crud = new ProfileCRUD(dataPath, jackson, registry);
 
         // 4. Create manager (auto-registers via constructor)
         profileManager = new ProfileManager(crud, registry, getLogger());
@@ -241,6 +240,11 @@ manager.remove(profile); // Deletes from memory and file
 
 Abstract base class for data persistence operations.
 
+**Constructor:**
+```java
+public CRUD(Handler handler, CRUDRegistry registry)
+```
+
 **Key Methods:**
 - `getData(String id)` - Load entity from file
 - `saveData(T object)` - Save entity to file (atomic write)
@@ -267,6 +271,7 @@ Manages collections of entities with in-memory caching and file persistence.
 - `update(T data)` - Update and save entity
 - `getByID(String id)` - Retrieve by ID (cached)
 - `getByIDCreate(String id)` - Get or create new
+- `getByIDCreate(String id, boolean add)` - Get or create, optionally add to collection
 - `load()` - Load all entities from directory
 - `loadByID(String id)` - Load/reload single entity
 
@@ -274,13 +279,18 @@ Manages collections of entities with in-memory caching and file persistence.
 
 Manages a single configuration object (e.g., plugin settings).
 
+**Constructor:**
+```java
+public SingleCRUD(Handler handler, CRUDRegistry crudRegistry)
+```
+
 **Features:**
 - Simplified API for singleton data
-- Lazy construction via `construct()` method
+- Lazy loading via `get()` method (auto-loads if null)
 - Automatic file creation on first save
 
 **Key Methods:**
-- `get()` - Get the object (constructs if null)
+- `get()` - Get the object (loads from file if null, constructs default if file doesn't exist)
 - `save(T object)` - Replace and save object
 - `load()` - Load from file or construct default
 - `delete()` - Delete the file
@@ -289,8 +299,11 @@ Manages a single configuration object (e.g., plugin settings).
 
 ```java
 public class ConfigCRUD extends SingleCRUD<PluginConfig> {
-    public ConfigCRUD(Handler handler) {
-        super(handler);
+    private final String path;
+
+    public ConfigCRUD(Handler handler, CRUDRegistry registry, String dataPath) {
+        super(handler, registry);
+        this.path = dataPath;
     }
 
     @Override
@@ -305,7 +318,7 @@ public class ConfigCRUD extends SingleCRUD<PluginConfig> {
 
     @Override
     public String getPath() {
-        return "plugins/MyPlugin/config";
+        return path;
     }
 
     @Override
@@ -318,6 +331,13 @@ public class ConfigCRUD extends SingleCRUD<PluginConfig> {
         return new CRUDAdapters();
     }
 }
+
+// Usage
+ConfigCRUD configCRUD = new ConfigCRUD(jackson, registry, dataFolder + "/config");
+registry.register(configCRUD); // Register for initialization
+
+// After registry.initialize():
+PluginConfig config = configCRUD.get(); // Auto-loads or constructs
 ```
 
 ## Dependency Injection Pattern (Recommended)
@@ -326,7 +346,7 @@ public class ConfigCRUD extends SingleCRUD<PluginConfig> {
 
 The modern DI approach offers:
 - **Testability**: Mock dependencies in unit tests
-- **Flexibility**: Swap implementations (Jackson ↔ GSON)
+- **Flexibility**: Swap implementations (Jackson <-> GSON)
 - **Explicit Dependencies**: No hidden singleton coupling
 - **Thread Safety**: Avoid global state
 
@@ -349,12 +369,9 @@ public class MyPlugin extends JavaPlugin {
         registry.getGlobalAdapters()
             .addModule(new JavaTimeModule());
 
-        // 3. Create CRUD instances
-        ProfileCRUD profileCRUD = new ProfileCRUD(dataFolder + "/profiles", jackson);
-        profileCRUD.setRegistry(registry);
-
-        MapCRUD mapCRUD = new MapCRUD(dataFolder + "/maps", jackson);
-        mapCRUD.setRegistry(registry);
+        // 3. Create CRUD instances (registry passed to constructor)
+        ProfileCRUD profileCRUD = new ProfileCRUD(dataFolder + "/profiles", jackson, registry);
+        MapCRUD mapCRUD = new MapCRUD(dataFolder + "/maps", jackson, registry);
 
         // 4. Inject into managers (auto-registers)
         profileManager = new ProfileManager(profileCRUD, registry, getLogger());
@@ -435,16 +452,33 @@ registry.getGlobalAdapters()
     .addTypeAdapter(UUID.class, new UUIDTypeAdapter());
 ```
 
+### Optional Type Adapter (GSON)
+
+The library includes an `OptionalTypeAdapter` for serializing `java.util.Optional` with GSON:
+
+```java
+import me.mortaldev.typeadapters.OptionalTypeAdapter;
+
+// Register the factory with GsonBuilder
+Gson gson = new GsonBuilder()
+    .registerTypeAdapterFactory(OptionalTypeAdapter.FACTORY)
+    .create();
+
+// Serialization format:
+// - Empty optional: null
+// - Present optional: the contained value directly
+```
+
 ### Choosing Jackson vs GSON
 
 ```java
 // Jackson (recommended for complex objects)
 Jackson jackson = new Jackson();
-ProfileCRUD crud = new ProfileCRUD(path, jackson);
+ProfileCRUD crud = new ProfileCRUD(path, jackson, registry);
 
 // GSON (simpler API, good for basic objects)
 GSON gson = new GSON();
-ProfileCRUD crud = new ProfileCRUD(path, gson);
+ProfileCRUD crud = new ProfileCRUD(path, gson, registry);
 ```
 
 ## Registration System
@@ -462,16 +496,12 @@ public class ProfileManager extends CRUDManager<Profile> {
 
 When you call `new ProfileManager(crud, registry, logger)`, the manager is added to the registry's internal list. Then `registry.initialize()` loads all registered managers' data.
 
-### Legacy @AutoRegister Annotation
+For `SingleCRUD` instances, manually register them:
 
-The `@AutoRegister` annotation and `scanAndRegister()` method exist for backward compatibility but are **not recommended** for new code:
-
-- **Complexity**: Requires reflection, classpath scanning, and getInstance() methods
-- **Hidden Dependencies**: Makes initialization order unclear
-- **Harder to Test**: Tight coupling to singleton pattern
-- **Not Used**: Modern codebases (including reference implementations) use manual DI
-
-**Recommended**: Use explicit instantiation with constructor injection as shown in the Quick Start guide.
+```java
+ConfigCRUD configCRUD = new ConfigCRUD(jackson, registry, dataPath);
+registry.register(configCRUD); // Manual registration
+```
 
 ## Advanced Features
 
@@ -490,6 +520,9 @@ CompletableFuture.runAsync(() -> manager.add(profile2));
 ```java
 // Don't load until needed
 HashSet<Profile> profiles = manager.getSet(true); // Loads if empty
+
+// SingleCRUD automatically lazy-loads
+PluginConfig config = configCRUD.get(); // Loads on first access
 ```
 
 ### Partial Reloading
@@ -507,6 +540,9 @@ Profile profile = manager.getByIDCreate("player123", false);
 
 // Creates and adds to set + saves to file
 Profile profile = manager.getByIDCreate("player123", true);
+
+// Shorthand for getByIDCreate(id, true)
+Profile profile = manager.getByIDCreate("player123");
 ```
 
 ### Atomic Writes
@@ -535,67 +571,11 @@ public void log(String message) {
 }
 ```
 
-## Migration Guide
-
-### From Singleton Pattern (Deprecated)
-
-**Old Way:**
-
-```java
-public class ProfileManager extends CRUDManager<Profile> {
-    private static ProfileManager instance;
-
-    private ProfileManager() {
-        CRUDRegistry.getInstance().register(this);
-    }
-
-    public static ProfileManager getInstance() {
-        if (instance == null) {
-            instance = new ProfileManager();
-        }
-        return instance;
-    }
-
-    @Override
-    public CRUD<Profile> getCRUD() {
-        return ProfileCRUD.getInstance(); // Hidden dependency!
-    }
-}
-```
-
-**New Way:**
-
-```java
-public class ProfileManager extends CRUDManager<Profile> {
-    private static ProfileManager instance;
-
-    public ProfileManager(CRUD<Profile> crud, CRUDRegistry registry) {
-        super(crud, registry); // Explicit dependencies
-    }
-
-    public static ProfileManager getInstance() {
-        return instance;
-    }
-
-    public static void setInstance(ProfileManager manager) {
-        instance = manager;
-    }
-
-    // No need to override getCRUD()
-}
-```
-
-**Benefits:**
-- ✅ Testable (inject mock CRUD)
-- ✅ Flexible (switch Jackson ↔ GSON)
-- ✅ Explicit (no hidden dependencies)
-- ✅ Thread-safe (no lazy initialization races)
-
 ## Best Practices
 
 ### 1. Use Dependency Injection
 
-Inject `CRUD`, `CRUDRegistry`, and `Handler` instances instead of using singletons.
+Pass `Handler` and `CRUDRegistry` to constructors instead of using singletons.
 
 ### 2. Register Global Adapters Once
 
@@ -639,8 +619,8 @@ registry.setLoggingEnabled(true);
 Use different directories for different entity types:
 
 ```java
-ProfileCRUD profileCRUD = new ProfileCRUD(dataFolder + "/profiles", jackson);
-MapCRUD mapCRUD = new MapCRUD(dataFolder + "/maps", jackson);
+ProfileCRUD profileCRUD = new ProfileCRUD(dataFolder + "/profiles", jackson, registry);
+MapCRUD mapCRUD = new MapCRUD(dataFolder + "/maps", jackson, registry);
 ```
 
 ### 8. Use SingleCRUD for Singletons
@@ -648,10 +628,10 @@ MapCRUD mapCRUD = new MapCRUD(dataFolder + "/maps", jackson);
 Don't use `CRUDManager` for configuration files or single objects:
 
 ```java
-// ✅ Correct
+// Correct
 public class ConfigCRUD extends SingleCRUD<PluginConfig> { }
 
-// ❌ Wrong
+// Wrong
 public class ConfigManager extends CRUDManager<PluginConfig> { }
 ```
 
@@ -709,10 +689,12 @@ public class DataServices {
 ```java
 public class CRUDFactory {
     private final Handler handler;
+    private final CRUDRegistry registry;
     private final String baseDataPath;
 
-    public CRUDFactory(Handler handler, String baseDataPath) {
+    public CRUDFactory(Handler handler, CRUDRegistry registry, String baseDataPath) {
         this.handler = handler;
+        this.registry = registry;
         this.baseDataPath = baseDataPath;
     }
 
@@ -721,7 +703,7 @@ public class CRUDFactory {
             String subdirectory,
             CRUDAdapters adapters) {
         String path = baseDataPath + "/" + subdirectory;
-        return new CRUD<T>(handler) {
+        return new CRUD<T>(handler, registry) {
             @Override
             public Class<T> getClazz() { return clazz; }
 
@@ -768,6 +750,12 @@ profileManager = new ProfileManager(crud, registry, logger);
 2. Verify `registry.initialize()` is called after all managers are created
 3. Check that the same `CRUDRegistry` instance is passed to all managers
 
+### SingleCRUD not loading
+
+1. Ensure you registered it manually: `registry.register(singleCrud)`
+2. Call `registry.initialize()` after registration
+3. Or simply call `singleCrud.get()` which auto-loads
+
 ## License
 
 This library is provided as-is for use in your projects. Modify and distribute freely.
@@ -780,10 +768,19 @@ This is a personal library, but suggestions and improvements are welcome. Open a
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
 
+- **v1.0.2** - Bug fixes and improvements
+  - Fixed `SingleCRUD.get()` not caching results (now auto-loads)
+  - Fixed `CRUDManager.getByIDCreate()` ignoring the `add` parameter
+  - Fixed `OptionalTypeAdapter` type erasure and field order issues
+  - Improved `GsonGet`/`GsonSave` to reuse handler instances
+  - Added null check for path in `NormalDelete`
+  - Removed unused `globalInstance` field from GSON handler
+
+- **v1.0.1** - Minor updates
+
 - **v1.0.0** - Initial stable release
   - Dual Jackson/GSON support
   - Dependency injection pattern
   - Thread-safe operations
   - Atomic write operations
-  - AutoRegister system
   - CRUDAdapters for custom serialization

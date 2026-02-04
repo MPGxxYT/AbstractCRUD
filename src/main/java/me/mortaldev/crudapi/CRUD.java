@@ -76,6 +76,7 @@ public abstract class CRUD<T extends CRUD.Identifiable> {
     return handler.delete().delete(object.getId(), getPath());
   }
 
+  @Deprecated
   public CRUD(Handler handler) {
     this.handler = handler;
   }
