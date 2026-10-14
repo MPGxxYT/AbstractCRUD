@@ -1,413 +1,164 @@
 package me.mortaldev.crudapi;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.logging.Logger;
 import me.mortaldev.crudapi.loading.CRUDRegistry;
 import me.mortaldev.crudapi.loading.ILoadable;
 
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.Map;
-
 /**
- * Abstract manager class for managing CRUD operations on identifiable data objects.
+ * An in-memory cache of entities in front of a {@link CRUD}. Every change goes to both the cache
+ * and the CRUD, so the two stay in step.
  *
- * <p>This class provides thread-safe management of a collection of objects that can be
- * created, read, updated, and deleted (CRUD). It includes:
- * <ul>
- *   <li>In-memory caching with O(1) ID lookups via {@link ConcurrentHashMap}</li>
- *   <li>Thread-safe synchronized operations for add, remove, update, and load</li>
- *   <li>Automatic file system persistence through the {@link CRUD} interface</li>
- *   <li>Support for lazy loading and eager loading patterns</li>
- *   <li>Dependency injection support for testability and flexibility</li>
- * </ul>
- *
- * <p><b>Thread Safety:</b> All mutating operations (add, remove, update, load) are synchronized.
- * Read operations use a concurrent cache for efficient concurrent access.
- *
- * <p><b>Performance:</b> The ID cache provides O(1) lookup time compared to O(n) linear search.
- * Cache is automatically maintained during all data modifications.
- *
- * <p><b>Dependency Injection:</b> Use the constructor {@link #CRUDManager(CRUD, CRUDRegistry)}
- * to pass dependencies explicitly. The old pattern of overriding {@link #getCRUD()} is deprecated.
- *
- * <p><b>Example usage (new DI pattern):</b>
  * <pre>{@code
- * public class ProfileManager extends CRUDManager<Profile> {
- *     public ProfileManager(CRUD<Profile> crud, CRUDRegistry registry) {
- *         super(crud, registry);
- *     }
- *
- *     @Override
- *     public Profile getNewInstance(String id) {
- *         return Profile.create(id);
- *     }
- *
- *     @Override
- *     public void log(String message) {
- *         logger.info(message);
- *     }
- * }
+ * CRUD<Profile> crud = new CRUD<>(Profile.class, dataDir.resolve("profiles"), codec);
+ * CRUDManager<Profile> profiles = new CRUDManager<>(crud, Profile::new, registry);
+ * registry.initialize();             // calls profiles.load()
+ * Profile p = profiles.getOrCreate(uuid.toString());
  * }</pre>
  *
- * <p>Most of this class changes in 2.0.0. Members marked for removal are replaced; see
- * https://github.com/MPGxxYT/AbstractCRUD for the new usage.
+ * <p>Subclass it to add lookups of your own; {@link #crud()} gives subclasses the underlying CRUD.
  *
- * @param <T> The type of data object this manager handles, must implement {@link CRUD.Identifiable}
+ * <p><b>Thread safety:</b> reads go straight to a {@link ConcurrentHashMap} and never block.
+ * Writes ({@link #getOrCreate} when it creates, {@link #save}, {@link #remove}, {@link #load},
+ * {@link #reload}) are synchronized on the manager. {@link #load} swaps the contents in without
+ * ever leaving the cache empty.
+ *
+ * @param <T> the entity type
  */
-public abstract class CRUDManager<T extends CRUD.Identifiable> implements ILoadable {
+public class CRUDManager<T extends CRUD.Identifiable> implements ILoadable {
+  private static final Logger LOGGER = Logger.getLogger("AbstractCRUD");
 
-  /** Primary data storage using HashSet for efficient contains/remove operations. */
-  private final HashSet<T> set = new HashSet<>();
-
-  /** Concurrent cache mapping IDs to objects for O(1) lookup performance. */
-  private final Map<String, T> idCache = new ConcurrentHashMap<>();
-
-  /** The CRUD implementation for persistence operations. */
+  private final Map<String, T> cache = new ConcurrentHashMap<>();
+  private final Collection<T> view = Collections.unmodifiableCollection(cache.values());
   private final CRUD<T> crud;
+  private final Function<String, ? extends T> factory;
 
   /**
-   * Constructor with dependency injection (recommended).
-   *
-   * <p>This constructor allows you to inject dependencies explicitly, enabling proper testing
-   * and avoiding the singleton pattern. Use this constructor for all new code.
-   *
-   * <p><b>Example:</b>
-   * <pre>{@code
-   * // In your plugin's onEnable():
-   * CRUDRegistry registry = new CRUDRegistry();
-   * ProfileCRUD crud = new ProfileCRUD(storagePath, jackson);
-   * crud.setRegistry(registry);
-   * ProfileManager manager = new ProfileManager(crud, registry);
-   * }</pre>
-   *
-   * @param crud The CRUD implementation for persistence
-   * @param registry The registry to register this manager with (can be null if no registration needed)
+   * @param crud where entities are persisted
+   * @param factory creates a new entity for an id; used by {@link #getOrCreate}
+   * @param registry registers this manager for {@link CRUDRegistry#initialize()}; may be null
    */
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  protected CRUDManager(CRUD<T> crud, CRUDRegistry registry) {
-    this.crud = crud;
+  public CRUDManager(CRUD<T> crud, Function<String, ? extends T> factory, CRUDRegistry registry) {
+    this.crud = Objects.requireNonNull(crud, "crud");
+    this.factory = Objects.requireNonNull(factory, "factory");
     if (registry != null) {
       registry.register(this);
     }
   }
 
-  /**
-   * Get the CRUD object used by this manager.
-   *
-   * <p>When using the new DI constructor {@link #CRUDManager(CRUD, CRUDRegistry)},
-   * this method returns the injected CRUD instance. When using the deprecated default constructor,
-   * subclasses must override this method.
-   *
-   * @return The CRUD object used by this manager
-   * @deprecated When using DI, you don't need to override this method. It's only needed for backward compatibility.
-   */
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public CRUD<T> getCRUD() {
-    if (crud != null) {
-      return crud;
-    }
-    throw new UnsupportedOperationException(
-        "getCRUD() must be overridden when using the default constructor. " +
-        "Consider using the CRUDManager(CRUD, CRUDRegistry) constructor instead.");
+  protected CRUD<T> crud() {
+    return crud;
+  }
+
+  /** Returns the cached entity with this id. Does not read from disk. */
+  public Optional<T> get(String id) {
+    return id == null ? Optional.empty() : Optional.ofNullable(cache.get(id));
   }
 
   /**
-   * Log a message to the console. This is used for logging messages to the console from within this
-   * manager.
-   *
-   * @param string The message to log.
+   * Returns the cached entity with this id, or creates one with the factory, caches it and saves
+   * it.
    */
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public abstract void log(String string);
+  public T getOrCreate(String id) {
+    Objects.requireNonNull(id, "id");
+    T existing = cache.get(id);
+    if (existing != null) {
+      return existing;
+    }
+    synchronized (this) {
+      existing = cache.get(id);
+      if (existing != null) {
+        return existing;
+      }
+      T created = factory.apply(id);
+      if (created == null || !id.equals(created.getId())) {
+        throw new IllegalStateException(
+            "Factory returned " + created + " for id '" + id + "'; its getId() must match");
+      }
+      cache.put(id, created);
+      crud.save(id, created);
+      return created;
+    }
+  }
 
   /**
-   * Replaces the cache with every entity {@link CRUD#loadAll()} returns. Files that fail to load
-   * are logged and skipped by the CRUD.
+   * Inserts or replaces the entity in the cache and writes it to the CRUD.
    *
-   * <p><b>Thread Safety:</b> This method is synchronized to prevent concurrent modifications.
+   * @return {@code true} if the file was written. The cache is updated either way.
    */
+  public synchronized boolean save(T entity) {
+    if (entity == null || entity.getId() == null) {
+      LOGGER.warning("Cannot save null entity or entity with null id");
+      return false;
+    }
+    cache.put(entity.getId(), entity);
+    return crud.save(entity.getId(), entity);
+  }
+
+  /**
+   * Removes the entity from the cache and deletes its file.
+   *
+   * @return {@code true} if the entity was cached or had a file
+   */
+  public synchronized boolean remove(String id) {
+    if (id == null) {
+      return false;
+    }
+    boolean cached = cache.remove(id) != null;
+    boolean deleted = crud.delete(id);
+    return cached || deleted;
+  }
+
+  public boolean contains(String id) {
+    return id != null && cache.containsKey(id);
+  }
+
+  /**
+   * A read-only live view of every cached entity. Safe to iterate while other threads write; the
+   * iteration may or may not reflect those writes.
+   */
+  public Collection<T> all() {
+    return view;
+  }
+
+  /** Replaces the cache with every entity the CRUD holds. */
   @Override
   public synchronized void load() {
-    set.clear();
-    idCache.clear();
-    for (T loadedData : getCRUD().loadAll().values()) {
-      set.add(loadedData);
-      idCache.put(loadedData.getId(), loadedData);
-    }
-  }
-
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public synchronized boolean loadByID(String id) {
-    if (id == null || id.isEmpty()) {
-      log("Cannot load data with null or empty ID");
-      return false;
-    }
-    Optional<T> data = getCRUD().get(id);
-    if (data.isEmpty()) {
-      return false;
-    }
-    T loadedData = data.get();
-    getByID(id).ifPresent(existing -> {
-      set.remove(existing);
-      idCache.remove(id);
-    });
-    set.add(loadedData);
-    idCache.put(id, loadedData);
-    return true;
+    Map<String, T> fresh = new HashMap<>();
+    crud.loadAll()
+        .forEach(
+            (fileId, entity) -> {
+              String id = entity.getId();
+              if (id == null) {
+                LOGGER.warning("Skipping entity with null id loaded from '" + fileId + "'");
+                return;
+              }
+              if (!id.equals(fileId)) {
+                LOGGER.warning(
+                    "Entity in file '" + fileId + "' has id '" + id + "'; caching it as '" + id
+                        + "'");
+              }
+              fresh.put(id, entity);
+            });
+    cache.putAll(fresh);
+    cache.keySet().retainAll(fresh.keySet());
   }
 
   /**
-   * Retrieve a data object by its ID with optional creation if not found.
+   * Re-reads one entity from the CRUD into the cache.
    *
-   * <p><b>Performance:</b> This method uses a concurrent cache for O(1) lookup time
-   * instead of O(n) linear search. Falls back to linear search if cache is out of sync.
-   *
-   * @param id The ID of the data object to retrieve (null-safe)
-   * @param createNew If true, creates a new instance via {@link #getNewInstance(String)} if not found
-   * @return An {@link Optional} containing the data object with the specified ID, or an empty
-   *     {@link Optional} if no such data object exists and createNew is false
+   * @return {@code true} if it was read; if not, the cache is left unchanged
    */
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public Optional<T> getByID(String id, boolean createNew) {
-    if (id == null) {
-      return Optional.empty();
-    }
-    // Check cache first for O(1) lookup
-    T cached = idCache.get(id);
-    if (cached != null) {
-      return Optional.of(cached);
-    }
-    // Fallback to linear search (in case cache is out of sync)
-    for (T data : set) {
-      if (id.equals(data.getId())) {
-        idCache.put(id, data); // Update cache
-        return Optional.of(data);
-      }
-    }
-    if (createNew) {
-      return Optional.of(getNewInstance(id));
-    }
-    return Optional.empty();
-  }
-
-  /**
-   * Retrieve a data object by its ID.
-   *
-   * @param id The ID of the data object to retrieve.
-   * @return An {@link Optional} containing the data object with the specified ID, or an empty
-   *     {@link Optional} if no such data object exists.
-   */
-
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public Optional<T> getByID(String id) {
-    return getByID(id, false);
-  }
-
-  /**
-   * Retrieve a data object by its ID, using the ID from the given data object.
-   *
-   * @param data The data object containing the ID of the data object to retrieve.
-   * @return An {@link Optional} containing the data object with the specified ID, or an empty
-   *     {@link Optional} if no such data object exists.
-   * @see #getByID(CRUD.Identifiable)
-   */
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public Optional<T> getByID(T data) {
-    return getByID(data.getId(), false);
-  }
-
-  /**
-   * Retrieves a data object by its ID, creating a new instance if it doesn't exist.
-   *
-   * @param id The ID of the data object to retrieve or create.
-   * @return The data object with the specified ID, either existing or newly created.
-   */
-
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public T getByIDCreate(String id) {
-    return getByIDCreate(id, true);
-  }
-
-  /**
-   * Retrieves a data object by its ID, creating a new instance if it doesn't exist.
-   *
-   * @param id The ID of the data object to retrieve or create.
-   * @param add If true, the newly created data object will be added to the collection.
-   * @return The data object with the specified ID, either existing or newly created.
-   */
-
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public T getByIDCreate(String id, boolean add) {
-    Optional<T> byID = getByID(id, false);
-    if (byID.isPresent()) {
-      return byID.get();
-    }
-    T data = getNewInstance(id);
-    if (add) {
-      add(data);
-    }
-    return data;
-  }
-
-  /**
-   * Creates a new instance of the data object with the given ID.
-   *
-   * @param string The ID for the new data object.
-   * @return A new instance of the data object.
-   */
-
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public abstract T getNewInstance(String string);
-
-  /**
-   * Determine if the given data object is in the collection.
-   *
-   * @param data The data object to check for.
-   * @return True if the given data object is in the collection, false otherwise.
-   */
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public boolean contains(T data) {
-    return set.contains(data) || getByID(data.getId()).isPresent();
-  }
-
-  /**
-   * Retrieve the collection of data objects.
-   *
-   * <p>If the collection is empty, this method will attempt to load the data from the underlying
-   * data store.
-   *
-   * @return The collection of data objects.
-   */
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public HashSet<T> getSet() {
-    return getSet(false);
-  }
-
-  /**
-   * Retrieve the collection of data objects.
-   *
-   * <p>If the collection is empty and the {@code load} parameter is true, this method will attempt
-   * to load the data from the underlying data store.
-   *
-   * @param load If true, and the collection is empty, the data will be loaded from the underlying
-   *     data store.
-   * @return The collection of data objects.
-   */
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public HashSet<T> getSet(boolean load) {
-    if (set.isEmpty() && load) {
-      load();
-    }
-    return set;
-  }
-
-  /**
-   * Add a data object to the collection.
-   *
-   * <p>If the data object is already in the collection, or if a data object with the same ID is
-   * already in the collection, this method will return false. Otherwise, the data object will be
-   * added to the collection and the underlying data store will be updated.
-   *
-   * @param data The data object to add to the collection.
-   * @return True if the data object was successfully added to the collection, false otherwise.
-   */
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public synchronized boolean add(T data) {
-    return add(data, true);
-  }
-
-  /**
-   * Adds a data object to the collection.
-   *
-   * <p>If the data object is already in the collection, or if a data object with the same ID is
-   * already in the collection, this method will return false. Otherwise, the data object will be
-   * added to the collection and the underlying data store will be updated if the specified save
-   * flag is true.
-   *
-   * @param data The data object to add to the collection.
-   * @param saveToFile If true, the data object will be saved to the underlying data store.
-   * @return True if the data object was successfully added to the collection, false otherwise.
-   */
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public synchronized boolean add(T data, Boolean saveToFile) {
-    if (data == null || data.getId() == null) {
-      log("Cannot add null data or data with null ID");
-      return false;
-    }
-    if (set.contains(data) || getByID(data.getId()).isPresent()) {
-      return false;
-    }
-    set.add(data);
-    idCache.put(data.getId(), data);
-    if (saveToFile) {
-      getCRUD().save(data.getId(), data);
-    }
-    return true;
-  }
-
-  /**
-   * Removes a data object from the collection.
-   *
-   * <p>If the data object is not in the collection, or if a data object with the same ID is not in
-   * the collection, this method will return false. Otherwise, the data object will be removed from
-   * the collection and the underlying data store will be updated.
-   *
-   * @param data The data object to remove from the collection.
-   * @return True if the data object was successfully removed from the collection, false otherwise.
-   */
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public synchronized boolean remove(T data) {
-    return remove(data, true);
-  }
-
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public synchronized boolean remove(T data, Boolean deleteFile) {
-    if (data == null || data.getId() == null) {
-      log("Cannot remove null data or data with null ID");
-      return false;
-    }
-    if (!set.contains(data) && getByID(data.getId()).isEmpty()) {
-      return false;
-    }
-    set.remove(data);
-    idCache.remove(data.getId());
-    if (deleteFile) {
-      getCRUD().delete(data.getId());
-    }
-    return true;
-  }
-
-  /**
-   * Updates a data object in the collection.
-   *
-   * <p>If the data object does not exist in the collection, this method will return false.
-   * Otherwise, the data object will be replaced in the collection and the underlying data store
-   * will be updated.
-   *
-   * @param data The data object to update in the collection.
-   * @return True if the data object was successfully updated, false otherwise.
-   */
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public synchronized boolean update(T data) {
-    return update(data, true);
-  }
-
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public synchronized boolean update(T data, Boolean updateFile) {
-    if (data == null || data.getId() == null) {
-      log("Cannot update null data or data with null ID");
-      return false;
-    }
-    Optional<T> existing = getByID(data.getId());
-    if (existing.isEmpty()) {
-      return add(data, updateFile);
-    }
-    set.remove(existing.get());
-    set.add(data);
-    idCache.put(data.getId(), data);
-    if (updateFile) {
-      getCRUD().save(data.getId(), data);
-    }
-    return true;
+  public synchronized boolean reload(String id) {
+    Optional<T> loaded = crud.get(id);
+    loaded.ifPresent(entity -> cache.put(id, entity));
+    return loaded.isPresent();
   }
 }
