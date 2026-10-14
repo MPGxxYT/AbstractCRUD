@@ -36,6 +36,7 @@ public class CRUDRegistry {
    *
    * @return The global CRUDAdapters instance.
    */
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public CRUDAdapters getGlobalAdapters() {
     return globalCRUDAdapters;
   }

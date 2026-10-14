@@ -18,6 +18,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * @deprecated Removed in 2.0.0. See https://github.com/MPGxxYT/AbstractCRUD for the new usage.
+ */
+@Deprecated(since = "1.1.0", forRemoval = true)
 public class Jackson implements Handler {
 
   /**
@@ -36,7 +40,9 @@ public class Jackson implements Handler {
    * ProfileCRUD crud = new ProfileCRUD(jackson);
    * }</pre>
    */
-  public Jackson() {}
+  public Jackson() {
+    DeprecationNotice.warnOnce();
+  }
 
   private static final Logger LOGGER = Logger.getLogger("Jackson");
 

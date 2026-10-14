@@ -49,7 +49,7 @@ Then add the dependency:
 <dependency>
     <groupId>com.github.MPGxxYT</groupId>
     <artifactId>AbstractCRUD</artifactId>
-    <version>v1.0.2</version>
+    <version>v1.1.0</version>
 </dependency>
 ```
 
@@ -67,7 +67,7 @@ Then add the dependency:
 
 ```groovy
 dependencies {
-    implementation 'com.github.MPGxxYT:AbstractCRUD:v1.0.2'
+    implementation 'com.github.MPGxxYT:AbstractCRUD:v1.1.0'
 }
 ```
 
@@ -95,7 +95,7 @@ Then reference it locally:
 <dependency>
     <groupId>me.mortaldev</groupId>
     <artifactId>AbstractCRUD</artifactId>
-    <version>1.0.2</version>
+    <version>1.1.0</version>
 </dependency>
 ```
 
@@ -767,6 +767,10 @@ This is a personal library, but suggestions and improvements are welcome. Open a
 ## Version History
 
 See [CHANGELOG.md](CHANGELOG.md) for detailed release notes.
+
+- **v1.1.0** - Deprecation release, no new features
+  - Marks every type and member that 2.0.0 changes or removes with `@Deprecated(forRemoval = true)`
+  - The `Jackson` and `GSON` constructors log a one-time console warning naming the calling plugin
 
 - **v1.0.2** - Bug fixes and improvements
   - Fixed `SingleCRUD.get()` not caching results (now auto-loads)

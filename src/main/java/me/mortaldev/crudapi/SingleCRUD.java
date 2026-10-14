@@ -5,12 +5,19 @@ import me.mortaldev.crudapi.loading.CRUDRegistry;
 import me.mortaldev.crudapi.loading.ILoadable;
 import me.mortaldev.crudapi.loading.IRegistrable;
 
+/**
+ * Persists a single object, such as plugin settings, as one JSON file.
+ *
+ * <p>Most of this class changes in 2.0.0. Members marked for removal are replaced; see
+ * https://github.com/MPGxxYT/AbstractCRUD for the new usage.
+ */
 public abstract class SingleCRUD<T> implements CRUD.Identifiable, IRegistrable, ILoadable {
 
   protected Handler handler;
   protected CRUDRegistry crudRegistry;
   private T object;
 
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public SingleCRUD(Handler handler, CRUDRegistry crudRegistry) {
     this.handler = handler;
     this.crudRegistry = crudRegistry;
@@ -28,12 +35,16 @@ public abstract class SingleCRUD<T> implements CRUD.Identifiable, IRegistrable, 
     this.object = handler.get().get(getId(), getPath(), getClazz(), getCombinedAdapters()).orElse(construct());
   }
 
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public abstract T construct();
 
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public abstract String getPath();
 
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public abstract CRUDAdapters getCRUDAdapters();
 
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public abstract Class<T> getClazz();
 
   /**
@@ -42,6 +53,7 @@ public abstract class SingleCRUD<T> implements CRUD.Identifiable, IRegistrable, 
    *
    * @return A combined {@link CRUDAdapters} instance.
    */
+  @Deprecated(since = "1.1.0", forRemoval = true)
   protected CRUDAdapters getCombinedAdapters() {
     return getCRUDAdapters().mergeWith(crudRegistry.getGlobalAdapters());
   }
