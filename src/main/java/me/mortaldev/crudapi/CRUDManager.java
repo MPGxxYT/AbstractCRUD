@@ -3,7 +3,6 @@ package me.mortaldev.crudapi;
 import me.mortaldev.crudapi.loading.CRUDRegistry;
 import me.mortaldev.crudapi.loading.ILoadable;
 
-import java.io.File;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -122,17 +121,8 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements ILoada
   public abstract void log(String string);
 
   /**
-   * Loads all data from the directory specified by {@link #getCRUD()}'s {@link
-   * CRUD#get(String)} method. If a file in the directory fails to load, a message is logged
-   * using the {@link #log(String)} method.
-   *
-   * <p>This method:
-   * <ul>
-   *   <li>Clears the existing data set and cache before loading</li>
-   *   <li>Creates the directory if it doesn't exist</li>
-   *   <li>Only processes files with .json extension</li>
-   *   <li>Updates both the set and cache for each loaded object</li>
-   * </ul>
+   * Replaces the cache with every entity {@link CRUD#loadAll()} returns. Files that fail to load
+   * are logged and skipped by the CRUD.
    *
    * <p><b>Thread Safety:</b> This method is synchronized to prevent concurrent modifications.
    */
@@ -140,28 +130,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements ILoada
   public synchronized void load() {
     set.clear();
     idCache.clear();
-    File mineDir = getCRUD().directory().toFile();
-    if (!mineDir.exists()) {
-      if (!mineDir.mkdirs()) {
-        log("Failed to create directory: " + mineDir.getPath());
-        return;
-      }
-    }
-    File[] files = mineDir.listFiles();
-    if (files == null) {
-      return;
-    }
-    for (File file : files) {
-      if (!file.isFile() || !file.getName().endsWith(".json")) {
-        continue;
-      }
-      String fileNameWithoutExtension = file.getName().replace(".json", "");
-      Optional<T> data = getCRUD().get(fileNameWithoutExtension);
-      if (data.isEmpty()) {
-        log("Failed to load data: " + file.getName());
-        continue;
-      }
-      T loadedData = data.get();
+    for (T loadedData : getCRUD().loadAll().values()) {
       set.add(loadedData);
       idCache.put(loadedData.getId(), loadedData);
     }
@@ -173,13 +142,8 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements ILoada
       log("Cannot load data with null or empty ID");
       return false;
     }
-    File file = new File(getCRUD().directory().toFile(), id + ".json");
-    if (!file.exists()) {
-      return false;
-    }
     Optional<T> data = getCRUD().get(id);
     if (data.isEmpty()) {
-      log("Failed to load data: " + file.getName());
       return false;
     }
     T loadedData = data.get();
