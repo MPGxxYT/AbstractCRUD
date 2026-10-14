@@ -1,25 +1,20 @@
 package me.mortaldev.crudapi;
 
-import me.mortaldev.crudapi.interfaces.Handler;
+import java.nio.file.Path;
+import me.mortaldev.crudapi.codec.Codec;
 import me.mortaldev.crudapi.loading.CRUDRegistry;
 import me.mortaldev.crudapi.loading.ILoadable;
-import me.mortaldev.crudapi.loading.IRegistrable;
 
-/**
- * Persists a single object, such as plugin settings, as one JSON file.
- *
- * <p>Most of this class changes in 2.0.0. Members marked for removal are replaced; see
- * https://github.com/MPGxxYT/AbstractCRUD for the new usage.
- */
-public abstract class SingleCRUD<T> implements CRUD.Identifiable, IRegistrable, ILoadable {
+/** Persists a single object, such as plugin settings, as one JSON file. */
+public abstract class SingleCRUD<T> implements CRUD.Identifiable, ILoadable {
 
-  protected Handler handler;
+  private final Codec codec;
   protected CRUDRegistry crudRegistry;
+  private CRUD<T> crud;
   private T object;
 
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public SingleCRUD(Handler handler, CRUDRegistry crudRegistry) {
-    this.handler = handler;
+  public SingleCRUD(Codec codec, CRUDRegistry crudRegistry) {
+    this.codec = codec;
     this.crudRegistry = crudRegistry;
   }
 
@@ -32,42 +27,28 @@ public abstract class SingleCRUD<T> implements CRUD.Identifiable, IRegistrable, 
 
   @Override
   public void load() {
-    this.object = handler.get().get(getId(), getPath(), getClazz(), getCombinedAdapters()).orElse(construct());
+    this.object = crud().get(getId()).orElse(construct());
   }
 
-  @Deprecated(since = "1.1.0", forRemoval = true)
   public abstract T construct();
 
-  @Deprecated(since = "1.1.0", forRemoval = true)
   public abstract String getPath();
 
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  public abstract CRUDAdapters getCRUDAdapters();
-
-  @Deprecated(since = "1.1.0", forRemoval = true)
   public abstract Class<T> getClazz();
 
-  /**
-   * Returns a new {@link CRUDAdapters} instance containing both the global adapters from {@link
-   * CRUDRegistry} and the specific adapters for this CRUD implementation.
-   *
-   * @return A combined {@link CRUDAdapters} instance.
-   */
-  @Deprecated(since = "1.1.0", forRemoval = true)
-  protected CRUDAdapters getCombinedAdapters() {
-    return getCRUDAdapters().mergeWith(crudRegistry.getGlobalAdapters());
-  }
-
-  private void save() {
-    handler.save().save(object, getId(), getPath(), getCombinedAdapters());
+  private CRUD<T> crud() {
+    if (crud == null) {
+      crud = new CRUD<>(getClazz(), Path.of(getPath()), codec);
+    }
+    return crud;
   }
 
   public void save(T newObject) {
     this.object = newObject;
-    save();
+    crud().save(getId(), object);
   }
 
   public boolean delete() {
-    return handler.delete().delete(getId(), getPath());
+    return crud().delete(getId());
   }
 }

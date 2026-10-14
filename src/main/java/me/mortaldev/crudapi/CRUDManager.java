@@ -2,7 +2,6 @@ package me.mortaldev.crudapi;
 
 import me.mortaldev.crudapi.loading.CRUDRegistry;
 import me.mortaldev.crudapi.loading.ILoadable;
-import me.mortaldev.crudapi.loading.IRegistrable;
 
 import java.io.File;
 import java.util.HashSet;
@@ -56,7 +55,7 @@ import java.util.Map;
  *
  * @param <T> The type of data object this manager handles, must implement {@link CRUD.Identifiable}
  */
-public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegistrable, ILoadable {
+public abstract class CRUDManager<T extends CRUD.Identifiable> implements ILoadable {
 
   /** Primary data storage using HashSet for efficient contains/remove operations. */
   private final HashSet<T> set = new HashSet<>();
@@ -124,7 +123,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
 
   /**
    * Loads all data from the directory specified by {@link #getCRUD()}'s {@link
-   * CRUD#getData(String)} method. If a file in the directory fails to load, a message is logged
+   * CRUD#get(String)} method. If a file in the directory fails to load, a message is logged
    * using the {@link #log(String)} method.
    *
    * <p>This method:
@@ -141,7 +140,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
   public synchronized void load() {
     set.clear();
     idCache.clear();
-    File mineDir = new File(getCRUD().getPath());
+    File mineDir = getCRUD().directory().toFile();
     if (!mineDir.exists()) {
       if (!mineDir.mkdirs()) {
         log("Failed to create directory: " + mineDir.getPath());
@@ -157,7 +156,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
         continue;
       }
       String fileNameWithoutExtension = file.getName().replace(".json", "");
-      Optional<T> data = getCRUD().getData(fileNameWithoutExtension);
+      Optional<T> data = getCRUD().get(fileNameWithoutExtension);
       if (data.isEmpty()) {
         log("Failed to load data: " + file.getName());
         continue;
@@ -174,11 +173,11 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
       log("Cannot load data with null or empty ID");
       return false;
     }
-    File file = new File(getCRUD().getPath(), id + ".json");
+    File file = new File(getCRUD().directory().toFile(), id + ".json");
     if (!file.exists()) {
       return false;
     }
-    Optional<T> data = getCRUD().getData(id);
+    Optional<T> data = getCRUD().get(id);
     if (data.isEmpty()) {
       log("Failed to load data: " + file.getName());
       return false;
@@ -377,7 +376,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
     set.add(data);
     idCache.put(data.getId(), data);
     if (saveToFile) {
-      getCRUD().saveData(data);
+      getCRUD().save(data.getId(), data);
     }
     return true;
   }
@@ -409,7 +408,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
     set.remove(data);
     idCache.remove(data.getId());
     if (deleteFile) {
-      getCRUD().deleteData(data);
+      getCRUD().delete(data.getId());
     }
     return true;
   }
@@ -443,7 +442,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
     set.add(data);
     idCache.put(data.getId(), data);
     if (updateFile) {
-      getCRUD().saveData(data);
+      getCRUD().save(data.getId(), data);
     }
     return true;
   }
