@@ -7,6 +7,10 @@ import me.mortaldev.crudapi.CRUDAdapters;
 import me.mortaldev.crudapi.handlers.Jackson;
 import me.mortaldev.crudapi.interfaces.Save;
 
+/**
+ * @deprecated Removed in 2.0.0. See https://github.com/MPGxxYT/AbstractCRUD for the new usage.
+ */
+@Deprecated(since = "1.1.0", forRemoval = true)
 public class JacksonSave implements Save {
   private static final Logger LOGGER = Logger.getLogger("JacksonSave");
   private final Jackson jackson;

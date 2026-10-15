@@ -15,7 +15,11 @@ import java.util.Set;
  * A container for registering custom type adapters and serializers for different JSON processing
  * libraries. This class is designed to support both Jackson and GSON configurations within the same
  * CRUD operation.
+ *
+ * @deprecated Removed in 2.0.0. Configure JacksonCodec or GsonCodec instead. See
+ *     https://github.com/MPGxxYT/AbstractCRUD for the new usage.
  */
+@Deprecated(since = "1.1.0", forRemoval = true)
 public class CRUDAdapters {
 
   /**

@@ -8,6 +8,10 @@ import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * @deprecated Removed in 2.0.0. See https://github.com/MPGxxYT/AbstractCRUD for the new usage.
+ */
+@Deprecated(since = "1.1.0", forRemoval = true)
 public class GsonSave implements Save {
   private static final Logger LOGGER = Logger.getLogger("GsonSave");
   private final GSON gson;

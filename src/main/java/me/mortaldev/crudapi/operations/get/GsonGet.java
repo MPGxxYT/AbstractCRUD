@@ -7,6 +7,10 @@ import me.mortaldev.crudapi.interfaces.Get;
 import java.io.File;
 import java.util.Optional;
 
+/**
+ * @deprecated Removed in 2.0.0. See https://github.com/MPGxxYT/AbstractCRUD for the new usage.
+ */
+@Deprecated(since = "1.1.0", forRemoval = true)
 public class GsonGet implements Get {
   private final GSON gson;
 

@@ -9,6 +9,10 @@ import java.text.MessageFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+/**
+ * @deprecated Removed in 2.0.0. See https://github.com/MPGxxYT/AbstractCRUD for the new usage.
+ */
+@Deprecated(since = "1.1.0", forRemoval = true)
 public class NormalDelete implements Delete {
   private static final String DATA_DELETED = "Data Deleted: {0}";
   private static final Logger LOGGER = Logger.getLogger("NormalDelete");

@@ -51,6 +51,9 @@ import java.util.Map;
  * }
  * }</pre>
  *
+ * <p>Most of this class changes in 2.0.0. Members marked for removal are replaced; see
+ * https://github.com/MPGxxYT/AbstractCRUD for the new usage.
+ *
  * @param <T> The type of data object this manager handles, must implement {@link CRUD.Identifiable}
  */
 public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegistrable, ILoadable {
@@ -82,6 +85,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * @param crud The CRUD implementation for persistence
    * @param registry The registry to register this manager with (can be null if no registration needed)
    */
+  @Deprecated(since = "1.1.0", forRemoval = true)
   protected CRUDManager(CRUD<T> crud, CRUDRegistry registry) {
     this.crud = crud;
     if (registry != null) {
@@ -99,7 +103,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * @return The CRUD object used by this manager
    * @deprecated When using DI, you don't need to override this method. It's only needed for backward compatibility.
    */
-  @Deprecated(since = "2.0", forRemoval = false)
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public CRUD<T> getCRUD() {
     if (crud != null) {
       return crud;
@@ -115,6 +119,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    *
    * @param string The message to log.
    */
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public abstract void log(String string);
 
   /**
@@ -163,6 +168,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
     }
   }
 
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public synchronized boolean loadByID(String id) {
     if (id == null || id.isEmpty()) {
       log("Cannot load data with null or empty ID");
@@ -198,6 +204,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * @return An {@link Optional} containing the data object with the specified ID, or an empty
    *     {@link Optional} if no such data object exists and createNew is false
    */
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public Optional<T> getByID(String id, boolean createNew) {
     if (id == null) {
       return Optional.empty();
@@ -228,6 +235,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    *     {@link Optional} if no such data object exists.
    */
 
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public Optional<T> getByID(String id) {
     return getByID(id, false);
   }
@@ -240,6 +248,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    *     {@link Optional} if no such data object exists.
    * @see #getByID(CRUD.Identifiable)
    */
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public Optional<T> getByID(T data) {
     return getByID(data.getId(), false);
   }
@@ -251,6 +260,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * @return The data object with the specified ID, either existing or newly created.
    */
 
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public T getByIDCreate(String id) {
     return getByIDCreate(id, true);
   }
@@ -263,6 +273,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * @return The data object with the specified ID, either existing or newly created.
    */
 
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public T getByIDCreate(String id, boolean add) {
     Optional<T> byID = getByID(id, false);
     if (byID.isPresent()) {
@@ -282,6 +293,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * @return A new instance of the data object.
    */
 
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public abstract T getNewInstance(String string);
 
   /**
@@ -290,6 +302,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * @param data The data object to check for.
    * @return True if the given data object is in the collection, false otherwise.
    */
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public boolean contains(T data) {
     return set.contains(data) || getByID(data.getId()).isPresent();
   }
@@ -302,6 +315,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    *
    * @return The collection of data objects.
    */
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public HashSet<T> getSet() {
     return getSet(false);
   }
@@ -316,6 +330,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    *     data store.
    * @return The collection of data objects.
    */
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public HashSet<T> getSet(boolean load) {
     if (set.isEmpty() && load) {
       load();
@@ -333,6 +348,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * @param data The data object to add to the collection.
    * @return True if the data object was successfully added to the collection, false otherwise.
    */
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public synchronized boolean add(T data) {
     return add(data, true);
   }
@@ -349,6 +365,7 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * @param saveToFile If true, the data object will be saved to the underlying data store.
    * @return True if the data object was successfully added to the collection, false otherwise.
    */
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public synchronized boolean add(T data, Boolean saveToFile) {
     if (data == null || data.getId() == null) {
       log("Cannot add null data or data with null ID");
@@ -375,10 +392,12 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * @param data The data object to remove from the collection.
    * @return True if the data object was successfully removed from the collection, false otherwise.
    */
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public synchronized boolean remove(T data) {
     return remove(data, true);
   }
 
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public synchronized boolean remove(T data, Boolean deleteFile) {
     if (data == null || data.getId() == null) {
       log("Cannot remove null data or data with null ID");
@@ -405,10 +424,12 @@ public abstract class CRUDManager<T extends CRUD.Identifiable> implements IRegis
    * @param data The data object to update in the collection.
    * @return True if the data object was successfully updated, false otherwise.
    */
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public synchronized boolean update(T data) {
     return update(data, true);
   }
 
+  @Deprecated(since = "1.1.0", forRemoval = true)
   public synchronized boolean update(T data, Boolean updateFile) {
     if (data == null || data.getId() == null) {
       log("Cannot update null data or data with null ID");
