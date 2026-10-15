@@ -62,7 +62,12 @@ dependencies {
 
 ### Store objects with a manager
 
-Entities implement `CRUD.Identifiable`. The id becomes the file name.
+Entities implement `CRUD.Identifiable`. The id becomes the file name. Create a codec, a `CRUD` for the directory, and a `CRUDManager` on top. Passing a `CRUDRegistry` lets you load every manager with one call.
+
+The two codecs read your class differently: Gson reads and writes fields directly, while Jackson only sees public fields and getter/setter pairs. Pick the example for the codec you use.
+
+<details open>
+<summary><b>Gson</b></summary>
 
 ```java
 public class Profile implements CRUD.Identifiable {
@@ -70,18 +75,13 @@ public class Profile implements CRUD.Identifiable {
     private String name = "Unknown";
     private int level = 1;
 
-    public Profile() {}                      // for the JSON library
+    public Profile() {}                      // used by Gson when reading
     public Profile(String id) { this.id = id; }
 
     @Override
     public String getId() { return id; }
 }
 ```
-
-> [!WARNING]
-> Gson reads and writes fields directly. Jackson only sees public fields and getter/setter pairs, so with `JacksonCodec` a class like this one would save only its `id`. Add getters and setters, or annotate the class for Jackson.
-
-Create a codec, a `CRUD` for the directory, and a `CRUDManager` on top. Passing a `CRUDRegistry` lets you load every manager with one call.
 
 ```java
 @Override
@@ -96,6 +96,51 @@ public void onEnable() {
     registry.initialize(); // reads plugins/YourPlugin/profiles/*.json into the cache
 }
 ```
+
+</details>
+
+<details>
+<summary><b>Jackson</b></summary>
+
+```java
+public class Profile implements CRUD.Identifiable {
+    private String id;
+    private String name = "Unknown";
+    private int level = 1;
+
+    public Profile() {}                      // used by Jackson when reading
+    public Profile(String id) { this.id = id; }
+
+    @Override
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public int getLevel() { return level; }
+    public void setLevel(int level) { this.level = level; }
+}
+```
+
+```java
+@Override
+public void onEnable() {
+    Codec codec = new JacksonCodec();
+    CRUDRegistry registry = new CRUDRegistry();
+
+    CRUD<Profile> profileCrud =
+        new CRUD<>(Profile.class, getDataFolder().toPath().resolve("profiles"), codec);
+    profiles = new CRUDManager<>(profileCrud, Profile::new, registry);
+
+    registry.initialize(); // reads plugins/YourPlugin/profiles/*.json into the cache
+}
+```
+
+> [!WARNING]
+> Without the getters and setters, Jackson saves only `id` (through `getId()`) and silently drops the private fields. Annotating the fields with `@JsonProperty` also works.
+
+</details>
 
 Then work with the cache. Every write updates the cache and the file together.
 
