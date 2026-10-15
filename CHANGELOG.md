@@ -19,6 +19,7 @@ A breaking release. The 1.x API was deprecated in 1.1.0 and is removed here. See
 - Directories are `java.nio.file.Path` instead of `String`.
 - Ids are validated: empty ids, `.`/`..`, and ids containing `/` or `\` are rejected.
 - An id containing `.json` (for example `a.json.b`) now loads under the right key.
+- Jackson (`jackson-databind`, `jackson-datatype-jsr310`) upgraded from 2.17.2 to 2.18.11, fixing the open Dependabot security alerts against `jackson-databind`.
 - Atomic writes fall back to a plain replace on file systems that do not support atomic moves.
 
 ### Removed
