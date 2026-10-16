@@ -8,8 +8,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Optional;
+
+import me.mortaldev.abstractcrud.crudapi.codec.Codec;
+import me.mortaldev.abstractcrud.crudapi.codec.GsonCodec;
+import me.mortaldev.abstractcrud.crudapi.codec.JacksonCodec;
 import me.mortaldev.crudapi.TestEntity;
-import me.mortaldev.typeadapters.OptionalTypeAdapter;
+import me.mortaldev.abstractcrud.typeadapters.OptionalTypeAdapter;
 import org.junit.jupiter.api.Test;
 
 class CodecTest {

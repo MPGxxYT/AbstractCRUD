@@ -1,4 +1,4 @@
-package me.mortaldev.crudapi.codec;
+package me.mortaldev.abstractcrud.crudapi.codec;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;

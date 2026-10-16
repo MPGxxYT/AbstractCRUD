@@ -10,9 +10,11 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
-import me.mortaldev.crudapi.codec.Codec;
-import me.mortaldev.crudapi.codec.GsonCodec;
-import me.mortaldev.crudapi.codec.JacksonCodec;
+
+import me.mortaldev.abstractcrud.crudapi.CRUD;
+import me.mortaldev.abstractcrud.crudapi.codec.Codec;
+import me.mortaldev.abstractcrud.crudapi.codec.GsonCodec;
+import me.mortaldev.abstractcrud.crudapi.codec.JacksonCodec;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;

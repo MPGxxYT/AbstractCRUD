@@ -18,9 +18,10 @@ Tests that exercise corrupt files log SEVERE stack traces on purpose. See `TESTI
 
 ## Branches and releases
 
-- `feature` holds 1.1.0: the 1.x API with every removed member marked `@Deprecated(forRemoval = true)` and a one-time runtime warning (`handlers/DeprecationNotice`). It gets no new features.
-- `v2` holds 2.0.0, which removes the 1.x API. `docs/MIGRATION_GUIDE.md` maps every removed 1.x call to its 2.0 replacement; update it when changing public methods.
-- JitPack publishes from git tags; tagging and pushing are done by the maintainer.
+- `master` is the 2.x line. Direct pushes to it are blocked by a repository rule, so changes go through a branch and a pull request.
+- Tag `v1.1.0` is the last 1.x release: the 1.x API with every removed member marked `@Deprecated(forRemoval = true)` and a one-time runtime warning from the `Jackson`/`GSON` constructors.
+- `docs/MIGRATION_GUIDE.md` maps every removed 1.x call to its 2.0 replacement; update it when changing public methods.
+- JitPack publishes from git tags; tagging and publishing releases are done by the maintainer.
 
 ## Architecture (2.0)
 

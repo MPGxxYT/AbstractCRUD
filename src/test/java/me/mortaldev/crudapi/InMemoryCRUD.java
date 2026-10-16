@@ -5,7 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import me.mortaldev.crudapi.codec.GsonCodec;
+
+import me.mortaldev.abstractcrud.crudapi.CRUD;
+import me.mortaldev.abstractcrud.crudapi.codec.GsonCodec;
 
 /** A CRUD adapter that keeps values in a map and never touches the disk. */
 public class InMemoryCRUD<T> extends CRUD<T> {

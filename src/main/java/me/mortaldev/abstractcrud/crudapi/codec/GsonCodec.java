@@ -1,4 +1,4 @@
-package me.mortaldev.crudapi.codec;
+package me.mortaldev.abstractcrud.crudapi.codec;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

@@ -1,4 +1,4 @@
-package me.mortaldev.crudapi.loading;
+package me.mortaldev.abstractcrud.crudapi.loading;
 
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
