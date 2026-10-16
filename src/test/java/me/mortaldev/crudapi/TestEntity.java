@@ -1,5 +1,7 @@
 package me.mortaldev.crudapi;
 
+import me.mortaldev.abstractcrud.crudapi.CRUD;
+
 import java.util.Objects;
 
 /** Plain entity readable by both Jackson (public fields, no-arg constructor) and Gson. */

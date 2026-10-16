@@ -1,4 +1,4 @@
-package me.mortaldev.typeadapters;
+package me.mortaldev.abstractcrud.typeadapters;
 
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;

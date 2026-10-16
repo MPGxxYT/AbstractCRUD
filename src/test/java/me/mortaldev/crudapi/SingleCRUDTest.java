@@ -6,8 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.nio.file.Path;
-import me.mortaldev.crudapi.codec.GsonCodec;
-import me.mortaldev.crudapi.loading.CRUDRegistry;
+
+import me.mortaldev.abstractcrud.crudapi.CRUD;
+import me.mortaldev.abstractcrud.crudapi.SingleCRUD;
+import me.mortaldev.abstractcrud.crudapi.codec.GsonCodec;
+import me.mortaldev.abstractcrud.crudapi.loading.CRUDRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 

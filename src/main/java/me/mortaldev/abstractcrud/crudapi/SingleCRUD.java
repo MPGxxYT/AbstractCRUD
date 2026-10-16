@@ -1,9 +1,9 @@
-package me.mortaldev.crudapi;
+package me.mortaldev.abstractcrud.crudapi;
 
 import java.util.Objects;
 import java.util.function.Supplier;
-import me.mortaldev.crudapi.loading.CRUDRegistry;
-import me.mortaldev.crudapi.loading.ILoadable;
+import me.mortaldev.abstractcrud.crudapi.loading.CRUDRegistry;
+import me.mortaldev.abstractcrud.crudapi.loading.ILoadable;
 
 /**
  * Holds a single object, such as plugin settings, stored under a fixed id in a {@link CRUD}.

@@ -12,7 +12,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import me.mortaldev.crudapi.loading.CRUDRegistry;
+
+import me.mortaldev.abstractcrud.crudapi.CRUDManager;
+import me.mortaldev.abstractcrud.crudapi.loading.CRUDRegistry;
 import org.junit.jupiter.api.Test;
 
 class CRUDManagerTest {

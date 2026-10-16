@@ -1,9 +1,11 @@
-package me.mortaldev.crudapi.codec;
+package me.mortaldev.abstractcrud.crudapi.codec;
+
+import me.mortaldev.abstractcrud.crudapi.CRUD;
 
 import java.io.IOException;
 
 /**
- * Converts objects to and from JSON text. {@link me.mortaldev.crudapi.CRUD} owns the files; a
+ * Converts objects to and from JSON text. {@link CRUD} owns the files; a
  * codec only decides how an object looks as JSON.
  *
  * <p>Implementations must be safe to share between threads and between CRUD instances. Sharing one

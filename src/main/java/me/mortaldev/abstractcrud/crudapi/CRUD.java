@@ -1,4 +1,4 @@
-package me.mortaldev.crudapi;
+package me.mortaldev.abstractcrud.crudapi;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import me.mortaldev.crudapi.codec.Codec;
+import me.mortaldev.abstractcrud.crudapi.codec.Codec;
 
 /**
  * Stores values of one type as JSON files in one directory, one file per id: {@code

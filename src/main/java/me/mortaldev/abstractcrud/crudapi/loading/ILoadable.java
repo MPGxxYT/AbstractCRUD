@@ -1,4 +1,4 @@
-package me.mortaldev.crudapi.loading;
+package me.mortaldev.abstractcrud.crudapi.loading;
 
 /**
  * Represents any object that has a lifecycle method for loading data.

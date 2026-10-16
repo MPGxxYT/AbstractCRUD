@@ -1,4 +1,4 @@
-package me.mortaldev.crudapi;
+package me.mortaldev.abstractcrud.crudapi;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -9,8 +9,8 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.logging.Logger;
-import me.mortaldev.crudapi.loading.CRUDRegistry;
-import me.mortaldev.crudapi.loading.ILoadable;
+import me.mortaldev.abstractcrud.crudapi.loading.CRUDRegistry;
+import me.mortaldev.abstractcrud.crudapi.loading.ILoadable;
 
 /**
  * An in-memory cache of entities in front of a {@link CRUD}. Every change goes to both the cache
