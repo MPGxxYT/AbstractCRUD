@@ -4,6 +4,19 @@
 
 Your saved data does not change: 2.0 reads the same `<directory>/<id>.json` files that 1.x wrote, with either codec.
 
+## 0. Update imports
+
+From v2.0.1 every class is under `me.mortaldev.abstractcrud`. Change imports like this:
+
+| 1.x / 2.0.0 | 2.0.1 and later |
+| --- | --- |
+| `me.mortaldev.crudapi.CRUD` | `me.mortaldev.abstractcrud.crudapi.CRUD` |
+| `me.mortaldev.crudapi.codec.*` | `me.mortaldev.abstractcrud.crudapi.codec.*` |
+| `me.mortaldev.crudapi.loading.CRUDRegistry` | `me.mortaldev.abstractcrud.crudapi.loading.CRUDRegistry` |
+| `me.mortaldev.typeadapters.OptionalTypeAdapter` | `me.mortaldev.abstractcrud.typeadapters.OptionalTypeAdapter` |
+
+If you shade the library, update the relocation pattern too: see [Shading](shading.md).
+
 ## 1. Replace the handler with a codec
 
 ```java
