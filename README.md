@@ -26,7 +26,7 @@ Add JitPack and the dependency to your `pom.xml`:
 <dependency>
     <groupId>com.github.MPGxxYT</groupId>
     <artifactId>AbstractCRUD</artifactId>
-    <version>v2.0.1</version>
+    <version>v2.0.2</version>
 </dependency>
 ```
 
