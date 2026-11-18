@@ -1,30 +1,50 @@
 package me.mortaldev.abstractcrud.crudapi.codec;
 
+import java.io.IOException;
 import me.mortaldev.abstractcrud.crudapi.CRUD;
 
-import java.io.IOException;
-
 /**
- * Converts objects to and from JSON text. {@link CRUD} owns the files; a
- * codec only decides how an object looks as JSON.
+ * Converts objects to JSON text and back. A {@link CRUD} uses it for every read and write; the
+ * codec decides what the JSON looks like, and the CRUD handles the files.
  *
- * <p>Implementations must be safe to share between threads and between CRUD instances. Sharing one
- * codec across several CRUDs is how serialization settings are applied globally.
+ * <p>Two implementations are included: {@link JacksonCodec} and {@link GsonCodec}. Create one in
+ * {@code onEnable} and pass the same instance to every CRUD that should use the same settings and
+ * custom serializers.
+ *
+ * <p>You can also call a codec directly, without files, to check that a class converts the way
+ * you expect:
+ *
+ * <pre>{@code
+ * String json = codec.encode(settings);
+ * Settings back = codec.decode(json, Settings.class);
+ * }</pre>
+ *
+ * <p>Implementations must be safe to use from several threads at once, because one codec is
+ * shared by several CRUDs.
+ *
+ * @see JacksonCodec
+ * @see GsonCodec
  */
 public interface Codec {
 
   /**
-   * Serializes a value to JSON text.
+   * Converts an object to JSON text.
    *
-   * @throws IOException if the value cannot be serialized
+   * @param value the object to convert
+   * @return the JSON text
+   * @throws IOException if the object cannot be converted, for example because a field's type has
+   *     no serializer
    */
   String encode(Object value) throws IOException;
 
   /**
-   * Parses JSON text into an instance of {@code type}.
+   * Converts JSON text to an object of the given class.
    *
-   * @return the parsed value, or {@code null} if the text is the JSON literal {@code null}
-   * @throws IOException if the text is not valid JSON for {@code type}
+   * @param json the JSON text
+   * @param type the class to create, for example {@code Settings.class}
+   * @param <T> the class to create
+   * @return the new object, or {@code null} if the text is the JSON literal {@code null}
+   * @throws IOException if the text is not valid JSON, or does not fit the class
    */
   <T> T decode(String json, Class<T> type) throws IOException;
 }
