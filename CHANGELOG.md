@@ -1,5 +1,14 @@
 # AbstractCRUD Changelog
 
+## [2.0.1]
+
+### Changed
+- All packages moved under `me.mortaldev.abstractcrud` (`me.mortaldev.abstractcrud.crudapi`, `me.mortaldev.abstractcrud.typeadapters`), so plugins can relocate the whole library with one shade rule. Update imports when upgrading from 2.0.0; no other API changes.
+
+### Documentation
+- README shortened to install, quick start and a guide index.
+- New guides in `docs/`: quick start, getting started, `SingleCRUD`, `CRUDManager`, serialization (including Bukkit `Location`), shading, and a full reference.
+
 ## [2.0.0]
 
 A breaking release. The 1.x API was deprecated in 1.1.0 and is removed here. See [docs/MIGRATION_GUIDE.md](docs/MIGRATION_GUIDE.md) for step-by-step upgrade instructions. Files saved by 1.x load unchanged.

@@ -25,7 +25,7 @@ Tests that exercise corrupt files log SEVERE stack traces on purpose. See `TESTI
 
 ## Architecture (2.0)
 
-Packages live under `src/main/java/me/mortaldev/`.
+Packages live under `src/main/java/me/mortaldev/abstractcrud/` (moved there in 2.0.1 so plugins can relocate the library with one shade rule). User-facing guides are in `docs/`; keep them in step with public API changes.
 
 - `crudapi.CRUD<T>` is the store for one type in one directory: `get(id)`, `save(id, value)`, `delete(id)`, `loadAll()`. All file handling is here: the `<id>.json` layout, id validation, atomic write via `<id>.json.tmp` and a move, and logging failures instead of throwing (reads return `Optional.empty()`, writes return `false`). Nothing else in the library touches `java.io`/`java.nio.file`.
 - `crudapi.codec.Codec` is the seam for JSON conversion, implemented by `JacksonCodec` and `GsonCodec`. Each one builds its mapper once from a constructor callback. Serialization settings belong to the codec; "global" settings mean sharing one codec instance.
