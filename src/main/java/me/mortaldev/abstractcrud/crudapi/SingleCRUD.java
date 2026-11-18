@@ -6,17 +6,41 @@ import me.mortaldev.abstractcrud.crudapi.loading.CRUDRegistry;
 import me.mortaldev.abstractcrud.crudapi.loading.ILoadable;
 
 /**
- * Holds a single object, such as plugin settings, stored under a fixed id in a {@link CRUD}.
+ * Keeps one object in memory, such as plugin settings or a spawn point, saved in one file through
+ * a {@link CRUD}.
  *
  * <pre>{@code
- * CRUD<Settings> crud = new CRUD<>(Settings.class, dataDir, codec);
- * SingleCRUD<Settings> settings = new SingleCRUD<>(crud, "settings", Settings::new, registry);
- * settings.get().motd;  // loads settings.json, or uses the default if there is no file
+ * // onEnable
+ * CRUD<Settings> files = new CRUD<>(Settings.class, getDataFolder().toPath(), codec);
+ * SingleCRUD<Settings> settings = new SingleCRUD<>(files, "settings", Settings::new, registry);
+ * registry.initialize();               // reads settings.json, or uses the default
+ *
+ * // anywhere later
+ * Settings s = settings.get();
+ * s.motd = "Welcome back";
+ * settings.save(s);                    // writes settings.json
  * }</pre>
  *
- * <p>The default is only kept in memory until {@link #save} is called.
+ * <p>The stored class does not need to implement {@link CRUD.Identifiable}; the id given to the
+ * constructor is the file name.
  *
- * @param <T> the stored type
+ * <h2>The default object</h2>
+ *
+ * <p>When the file does not exist, or exists but cannot be read, {@link #get()} returns a default
+ * object created by the supplier given to the constructor. The default lives in memory only until
+ * {@link #save} is called. Because an unreadable file also produces the default, a {@link #save}
+ * after a failed read replaces that file. The failed read is logged as SEVERE under the {@code
+ * "AbstractCRUD"} logger.
+ *
+ * <h2>Threads</h2>
+ *
+ * <p>All methods are safe from any thread. {@link #get()} does not block once the object is
+ * loaded; the other methods are {@code synchronized} on this object. Disk access happens on the
+ * calling thread.
+ *
+ * @param <T> the class of the stored object
+ * @see CRUDManager
+ * @see CRUDRegistry
  */
 public class SingleCRUD<T> implements ILoadable {
   private final CRUD<T> crud;
@@ -25,10 +49,19 @@ public class SingleCRUD<T> implements ILoadable {
   private volatile T object;
 
   /**
-   * @param crud where the object is persisted
-   * @param id the file name, without {@code .json}
-   * @param defaults creates the object when no file exists
-   * @param registry registers this for {@link CRUDRegistry#initialize()}; may be null
+   * Creates a SingleCRUD. Nothing is read until {@link #get()}, {@link #load()} or {@link
+   * CRUDRegistry#initialize()} is called.
+   *
+   * @param crud the CRUD whose folder holds the file. Several SingleCRUDs can share a folder as
+   *     long as their ids differ, but don't use a folder that a {@link CRUDManager} reads.
+   * @param id the file name without {@code .json}, for example {@code "settings"} for {@code
+   *     settings.json}. It must follow the id rules described on {@link CRUD}.
+   * @param defaults creates the object used when there is no readable file. It must not return
+   *     {@code null}. {@code Settings::new} needs a no-argument constructor; a lambda such as
+   *     {@code () -> new Settings("Welcome")} can call any constructor.
+   * @param registry the registry to add this to, so {@link CRUDRegistry#initialize()} loads it; or
+   *     {@code null} to load on the first {@link #get()}
+   * @throws NullPointerException if {@code crud}, {@code id} or {@code defaults} is {@code null}
    */
   public SingleCRUD(
       CRUD<T> crud, String id, Supplier<? extends T> defaults, CRUDRegistry registry) {
@@ -40,11 +73,26 @@ public class SingleCRUD<T> implements ILoadable {
     }
   }
 
+  /**
+   * Returns the file name this object is stored under.
+   *
+   * @return the id given to the constructor, without {@code .json}
+   */
   public String id() {
     return id;
   }
 
-  /** Returns the object, loading it on first use. */
+  /**
+   * Returns the object in memory, loading it first if this is the first call.
+   *
+   * <p>The first call reads the file, or creates the default if there is no readable file. Later
+   * calls return the same object without reading the file again, until {@link #load()} or {@link
+   * #save} replaces it. Changes you make to the returned object stay in memory until you call
+   * {@link #save}.
+   *
+   * @return the stored object or the default, never {@code null}
+   * @throws NullPointerException if the default is needed and the supplier returns {@code null}
+   */
   public T get() {
     T current = object;
     if (current != null) {
@@ -58,7 +106,15 @@ public class SingleCRUD<T> implements ILoadable {
     }
   }
 
-  /** Re-reads the object from the CRUD, or creates the default if there is no readable file. */
+  /**
+   * Reads the file again and replaces the object in memory. If there is no readable file, the
+   * object in memory becomes a new default instead.
+   *
+   * <p>{@link CRUDRegistry#initialize()} calls this when the SingleCRUD is registered. Call it
+   * yourself to pick up changes made to the file by hand, for example from a reload command.
+   *
+   * @throws NullPointerException if the default is needed and the supplier returns {@code null}
+   */
   @Override
   public synchronized void load() {
     T loaded = crud.get(id).orElse(null);
@@ -69,9 +125,14 @@ public class SingleCRUD<T> implements ILoadable {
   }
 
   /**
-   * Replaces the object and writes it to the CRUD.
+   * Replaces the object in memory and writes it to the file.
    *
-   * @return {@code true} if the file was written. The in-memory object is replaced either way.
+   * <p>Pass the object from {@link #get()} after changing it, or a new object to replace it.
+   *
+   * @param newObject the object to keep and save
+   * @return {@code true} if the file was written. {@code false} if writing failed; the object in
+   *     memory is replaced either way, and the cause is logged by the CRUD.
+   * @throws NullPointerException if {@code newObject} is {@code null}
    */
   public synchronized boolean save(T newObject) {
     Objects.requireNonNull(newObject, "newObject");
@@ -80,9 +141,10 @@ public class SingleCRUD<T> implements ILoadable {
   }
 
   /**
-   * Deletes the file. The next {@link #get()} after a {@link #load()} returns the default.
+   * Deletes the file. The object in memory is kept, so {@link #get()} still returns it until the
+   * next {@link #load()}, which then creates a new default.
    *
-   * @return {@code true} if a file existed and was deleted
+   * @return {@code true} if the file existed and was deleted
    */
   public synchronized boolean delete() {
     return crud.delete(id);

@@ -43,7 +43,7 @@ public class Profile implements CRUD.Identifiable {
 
 Three rules apply to every class you store:
 
-1. **Give it a public no-argument constructor.** The JSON library creates an empty object with it, then fills in the fields from the file.
+1. **Give the JSON library a way to build it.** The simplest is a no-argument constructor: the library creates an empty object with it, then fills in the fields from the file. It can be `private` if you don't want your own code to call it. Records and annotated constructors work too; see [Serialization](serialization.md#constructors).
 2. **Match the codec's rules for fields.** With Jackson, every field needs a getter and setter (or must be public). With Gson, fields are saved directly. See [Serialization](serialization.md#jackson-or-gson).
 3. **Only use types the JSON library understands.** Strings, numbers, booleans, lists, maps and your own simple classes work. Bukkit types like `Location` need a serializer; `ServerData` above needs one for `spawn`. See [Serialization](serialization.md#bukkit-location).
 

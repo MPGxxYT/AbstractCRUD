@@ -9,7 +9,7 @@ Both write pretty-printed JSON and both work for plugin data. They read your cla
 | | Jackson (`JacksonCodec`) | Gson (`GsonCodec`) |
 | --- | --- | --- |
 | Which fields are saved | Public fields, and every property with a public getter (`getX()` / `isX()`) | Every field, private ones included, except `transient` and `static` |
-| How an object is rebuilt | Public no-argument constructor, then setters (or public fields) | No-argument constructor if there is one, then fields directly |
+| How an object is rebuilt | A no-argument constructor (may be private), a `@JsonCreator` constructor, or a record's constructor; then setters or public fields | A no-argument constructor (may be private) or a record's constructor; then fields directly |
 | Skipping a field | `@JsonIgnore` on the field or getter | `transient` keyword |
 | A field in the file that the class doesn't have | **Fails the read** by default (see below) | Ignored |
 | Custom serializers | `JsonSerializer` / `JsonDeserializer`, grouped in a `SimpleModule` | `JsonSerializer` / `JsonDeserializer` or `TypeAdapter` |
@@ -19,7 +19,50 @@ If you don't know which to use, Gson needs less code in your classes. If you alr
 > [!WARNING]
 > **Jackson needs a getter and a setter for every private field.** A private field with neither is not saved, and no error is shown.
 >
-> **Gson without a no-argument constructor skips your field defaults.** Gson then creates the object without running any constructor, so `private int maxPlayers = 8;` reads as `0` when the file doesn't mention it. Always add a public no-argument constructor.
+> **Gson without a no-argument constructor skips your field defaults.** Gson then creates the object without running any constructor, so `private int maxPlayers = 8;` reads as `0` when the file doesn't mention it. Give the class a no-argument constructor (it can be private) or make it a record. See [Constructors](#constructors).
+
+## Constructors
+
+AbstractCRUD itself never needs a particular constructor. The JSON library does: when it reads a file, it has to create your object before filling it in. These are the ways to give it one:
+
+| Option | Jackson | Gson |
+| --- | --- | --- |
+| No-argument constructor | Works, `private` included | Works, `private` included |
+| A constructor with arguments, annotated | `@JsonCreator` on the constructor and `@JsonProperty("name")` on each parameter | Not supported |
+| Java `record` | Works | Works |
+| None of the above | The read fails | Creates the object without a constructor, so field defaults are skipped |
+
+A private no-argument constructor lets the JSON library build the object while your own code keeps using the constructor with arguments:
+
+```java
+public class AdminData {
+    private Location spawn;
+
+    private AdminData() {}                       // for the JSON library only
+
+    public AdminData(Location spawn) { this.spawn = spawn; }
+
+    public Location getSpawn() { return spawn; }
+    public void setSpawn(Location spawn) { this.spawn = spawn; }
+}
+```
+
+The same class with Jackson annotations instead, and no empty constructor:
+
+```java
+@JsonCreator
+public AdminData(@JsonProperty("spawn") Location spawn) { this.spawn = spawn; }
+```
+
+A record needs nothing extra. It has no setters, so you save a new record to change a value:
+
+```java
+public record AdminData(Location spawn) {}
+
+adminData.save(new AdminData(player.getLocation()));
+```
+
+The default object for a `SingleCRUD` and the factory for a `CRUDManager` are separate from all this. They can call any constructor: `() -> new AdminData(null)`, `id -> new Arena(id, 8)`.
 
 ## Configure a codec
 

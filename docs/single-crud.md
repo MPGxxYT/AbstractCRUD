@@ -13,7 +13,7 @@ SingleCRUD<Settings> settings = new SingleCRUD<>(files, "settings", Settings::ne
 | --- | --- |
 | `files` | The `CRUD` that reads and writes the file. Its folder is where the file goes. |
 | `"settings"` | The file name without `.json`. Here: `plugins/MyPlugin/settings.json`. |
-| `Settings::new` | Creates the default object when there is no file yet. It must take no arguments. |
+| `Settings::new` | Creates the default object when there is no file yet. `Settings::new` needs a no-argument constructor; a lambda such as `() -> new Settings("Welcome")` can call any constructor. |
 | `registry` | Optional. Pass a `CRUDRegistry` so `registry.initialize()` loads this object; pass `null` to skip. |
 
 Several `SingleCRUD`s can share one folder and one `CRUD` type as long as their ids differ. Don't put them in a folder that a `CRUDManager` also uses, because the manager reads every `.json` file in its folder.

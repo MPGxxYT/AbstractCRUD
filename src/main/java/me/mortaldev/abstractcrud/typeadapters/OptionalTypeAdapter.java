@@ -14,29 +14,34 @@ import java.lang.reflect.Type;
 import java.util.Optional;
 
 /**
- * A GSON TypeAdapterFactory for handling {@link Optional} types.
+ * Lets Gson save and read {@link Optional} fields. Gson cannot handle {@code Optional} on its own.
  *
- * <p>This factory creates type adapters that properly serialize and deserialize
- * Optional values while preserving the inner type information.
+ * <p>Register {@link #FACTORY} with the {@code GsonCodec}; it then applies to every {@code
+ * Optional} field, whatever its value type:
  *
- * <p><b>Usage:</b>
  * <pre>{@code
- * Gson gson = new GsonBuilder()
- *     .registerTypeAdapterFactory(OptionalTypeAdapter.FACTORY)
- *     .create();
+ * Codec codec = new GsonCodec(builder -> builder.registerTypeAdapterFactory(OptionalTypeAdapter.FACTORY));
  * }</pre>
  *
- * <p><b>Serialization format:</b>
- * <ul>
- *   <li>Empty optional: {@code null}</li>
- *   <li>Present optional: the contained value directly</li>
- * </ul>
+ * <p>In the JSON, a present value is written as the value itself, and an empty {@code Optional}
+ * as {@code null}. Gson leaves {@code null} fields out of the file by default, so an empty
+ * optional field is simply missing. When such a file is read, the field keeps the value it was
+ * given when the object was created. Initialize optional fields so they are never {@code null}:
+ *
+ * <pre>{@code
+ * private Optional<String> nickname = Optional.empty();
+ * }</pre>
+ *
+ * <p>This class is for Gson only. With Jackson, add the {@code jackson-datatype-jdk8} dependency
+ * and register its {@code Jdk8Module} instead.
+ *
+ * @param <T> the type inside the {@code Optional}
  */
 public class OptionalTypeAdapter<T> extends TypeAdapter<Optional<T>> {
 
   /**
-   * A factory for creating OptionalTypeAdapter instances.
-   * Register this with GsonBuilder to enable Optional support.
+   * The factory to register with Gson. It creates an adapter for each {@code Optional<X>} type it
+   * meets, using Gson's own adapter for {@code X}, and ignores every other type.
    */
   public static final TypeAdapterFactory FACTORY = new TypeAdapterFactory() {
     @Override
@@ -68,6 +73,13 @@ public class OptionalTypeAdapter<T> extends TypeAdapter<Optional<T>> {
     this.innerAdapter = innerAdapter;
   }
 
+  /**
+   * Writes the value inside the optional, or {@code null} if it is empty. Called by Gson.
+   *
+   * @param out where Gson is writing
+   * @param value the optional to write; {@code null} is written like an empty optional
+   * @throws IOException if writing fails
+   */
   @Override
   public void write(JsonWriter out, Optional<T> value) throws IOException {
     if (value == null || value.isEmpty()) {
@@ -77,6 +89,13 @@ public class OptionalTypeAdapter<T> extends TypeAdapter<Optional<T>> {
     }
   }
 
+  /**
+   * Reads a value into an optional: {@code null} becomes {@link Optional#empty()}. Called by Gson.
+   *
+   * @param in where Gson is reading
+   * @return the value wrapped in an optional, never {@code null}
+   * @throws IOException if reading fails
+   */
   @Override
   public Optional<T> read(JsonReader in) throws IOException {
     if (in.peek() == JsonToken.NULL) {
